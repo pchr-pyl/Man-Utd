@@ -17,4 +17,4 @@
 :HL["/Man-Utd/_next/static/media/e7b79b72fa390d7f-s.p.2tolh5ep4q7js.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/Man-Utd/_next/static/media/e9ed0bc71a38d6c1-s.p.2m2jj329378-j.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/Man-Utd/_next/static/media/ef6c596754631961-s.p.0_bzs213j-3nz.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
-0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}},"staleTime":300,"buildId":"mqB2oavYlI2Qlf5zt3TWX"}
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}},"staleTime":300,"buildId":"iw9splCGEgsKaWipEDoTY"}
