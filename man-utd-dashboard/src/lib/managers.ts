@@ -1,34 +1,49 @@
 import type { MatchRow } from './types';
 
 export interface ManagerStint {
-  id: string;
-  name: string;
-  nameTh: string;
   from: string; // ISO date, inclusive
   to: string | null; // ISO date, inclusive; null = present
   interim: boolean;
 }
 
-export const MANAGERS: ManagerStint[] = [
-  { id: 'ferguson', name: 'Alex Ferguson', nameTh: 'อเล็กซ์ เฟอร์กูสัน', from: '1986-11-06', to: '2013-05-19', interim: false },
-  { id: 'moyes', name: 'David Moyes', nameTh: 'เดวิด มอยส์', from: '2013-07-01', to: '2014-04-22', interim: false },
-  { id: 'giggs', name: 'Ryan Giggs', nameTh: 'ไรอัน กิ๊กส์', from: '2014-04-23', to: '2014-05-11', interim: true },
-  { id: 'van-gaal', name: 'Louis van Gaal', nameTh: 'หลุยส์ ฟาน คาล', from: '2014-07-14', to: '2016-05-23', interim: false },
-  { id: 'mourinho', name: 'José Mourinho', nameTh: 'โชเซ่ มูรินโญ่', from: '2016-05-27', to: '2018-12-18', interim: false },
-  { id: 'solskjaer', name: 'Ole Gunnar Solskjær', nameTh: 'โอเล่ กุนนาร์ โซลชาร์', from: '2018-12-19', to: '2021-11-21', interim: false },
-  { id: 'carrick', name: 'Michael Carrick', nameTh: 'ไมเคิล คาร์ริค', from: '2021-11-22', to: '2021-12-02', interim: true },
-  { id: 'rangnick', name: 'Ralf Rangnick', nameTh: 'ราล์ฟ รังนิค', from: '2021-12-03', to: '2022-05-31', interim: true },
-  { id: 'ten-hag', name: 'Erik ten Hag', nameTh: 'เอริค เทน ฮาก', from: '2022-06-01', to: '2024-10-28', interim: false },
-  { id: 'van-nistelrooy', name: 'Ruud van Nistelrooy', nameTh: 'รุด ฟาน นิสเตลรอย', from: '2024-10-29', to: '2024-11-10', interim: true },
-  { id: 'amorim', name: 'Ruben Amorim', nameTh: 'รูเบน อาโมริม', from: '2024-11-11', to: null, interim: false },
+export interface Manager {
+  id: string;
+  name: string;
+  nameTh: string;
+  stints: ManagerStint[];
+}
+
+export const MANAGERS: Manager[] = [
+  { id: 'ferguson', name: 'Alex Ferguson', nameTh: 'อเล็กซ์ เฟอร์กูสัน', stints: [{ from: '1986-11-06', to: '2013-05-19', interim: false }] },
+  { id: 'moyes', name: 'David Moyes', nameTh: 'เดวิด มอยส์', stints: [{ from: '2013-07-01', to: '2014-04-22', interim: false }] },
+  { id: 'giggs', name: 'Ryan Giggs', nameTh: 'ไรอัน กิ๊กส์', stints: [{ from: '2014-04-23', to: '2014-05-11', interim: true }] },
+  { id: 'van-gaal', name: 'Louis van Gaal', nameTh: 'หลุยส์ ฟาน คาล', stints: [{ from: '2014-07-14', to: '2016-05-23', interim: false }] },
+  { id: 'mourinho', name: 'José Mourinho', nameTh: 'โชเซ่ มูรินโญ่', stints: [{ from: '2016-05-27', to: '2018-12-18', interim: false }] },
+  { id: 'solskjaer', name: 'Ole Gunnar Solskjær', nameTh: 'โอเล่ กุนนาร์ โซลชาร์', stints: [{ from: '2018-12-19', to: '2021-11-21', interim: false }] },
+  {
+    id: 'carrick', name: 'Michael Carrick', nameTh: 'ไมเคิล คาร์ริค', stints: [
+      { from: '2021-11-22', to: '2021-12-02', interim: true },
+      { from: '2026-01-14', to: null, interim: false },
+    ],
+  },
+  { id: 'rangnick', name: 'Ralf Rangnick', nameTh: 'ราล์ฟ รังนิค', stints: [{ from: '2021-12-03', to: '2022-05-31', interim: true }] },
+  { id: 'ten-hag', name: 'Erik ten Hag', nameTh: 'เอริค เทน ฮาก', stints: [{ from: '2022-06-01', to: '2024-10-28', interim: false }] },
+  { id: 'van-nistelrooy', name: 'Ruud van Nistelrooy', nameTh: 'รุด ฟาน นิสเตลรอย', stints: [{ from: '2024-10-29', to: '2024-11-10', interim: true }] },
+  { id: 'amorim', name: 'Ruben Amorim', nameTh: 'รูเบน อาโมริม', stints: [{ from: '2024-11-11', to: '2026-01-05', interim: false }] },
+  { id: 'fletcher', name: 'Darren Fletcher', nameTh: 'ดาร์เรน เฟลทเชอร์', stints: [{ from: '2026-01-06', to: '2026-01-13', interim: true }] },
 ];
 
-export function managerForDate(date: string): ManagerStint | null {
+export function managerForDate(date: string): Manager | null {
   for (const m of MANAGERS) {
-    if (date >= m.from && (m.to === null || date <= m.to)) return m;
+    for (const s of m.stints) {
+      if (date >= s.from && (s.to === null || date <= s.to)) return m;
+    }
   }
   return null;
 }
+
+/** True when every stint was a caretaker spell (never the permanent boss). */
+export const isCaretakerOnly = (m: Manager) => m.stints.every((s) => s.interim);
 
 export interface ManagerStats {
   id: string;

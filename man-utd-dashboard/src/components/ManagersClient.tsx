@@ -17,6 +17,7 @@ import type { MatchRow } from '@/lib/types';
 import {
   MANAGERS,
   aggregateManagers,
+  isCaretakerOnly,
   ptsOf,
   perMp,
   winPct,
@@ -98,7 +99,7 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
               aria-pressed={selected.includes(m.id)}
             >
               {name(m.id)}
-              {m.interim && (
+              {isCaretakerOnly(m) && (
                 <span className="ml-1 text-xs text-muted">
                   ({t('managers.interim')})
                 </span>
@@ -206,7 +207,7 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
                       <span className="flex items-center gap-1.5">
                         {isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                         {name(m.id)}
-                        {m.interim && (
+                        {isCaretakerOnly(m) && (
                           <span className="text-xs text-muted">
                             ({t('managers.interim')})
                           </span>
