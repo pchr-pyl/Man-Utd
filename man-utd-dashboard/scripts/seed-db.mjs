@@ -134,4 +134,22 @@ for (const name of [...datasetFiles, ...matchlogFiles]) {
   datasetCount += 1;
 }
 
+const understatIndex = {};
+const rawDir = join(dataDir, 'raw');
+for (const name of await readdir(rawDir)) {
+  if (!/^understat-\d+\.json$/.test(name)) continue;
+  const data = JSON.parse(await readFile(join(rawDir, name), 'utf8'));
+  for (const entry of data.dates ?? []) {
+    if (entry.id && entry.datetime && entry.isResult) {
+      understatIndex[entry.datetime.slice(0, 10)] = entry.id;
+    }
+  }
+}
+await sql`
+  INSERT INTO datasets (key, payload, updated_at)
+  VALUES ('understat-index', ${JSON.stringify(understatIndex)}::jsonb, now())
+  ON CONFLICT (key) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()
+`;
+datasetCount += 1;
+
 console.log(`seeded ${seasonRows.length} season rows, ${matches.length} matches, and ${datasetCount} datasets`);

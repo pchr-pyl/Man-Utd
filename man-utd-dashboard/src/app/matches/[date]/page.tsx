@@ -1,6 +1,6 @@
 import { connection } from 'next/server';
 import { notFound } from 'next/navigation';
-import { getMatches, getMatchlogs, getSeasonRows } from '@/lib/data';
+import { getMatches, getMatchlogs, getSeasonRows, getMatchDetail } from '@/lib/data';
 import { seasonShort } from '@/lib/stats';
 import { AppHeader } from '@/components/AppHeader';
 import { MatchReport } from '@/components/MatchReport';
@@ -17,7 +17,10 @@ export default async function MatchPage({
   const match = idx >= 0 ? matches[idx] : undefined;
   if (!match) notFound();
 
-  const matchlogs = await getMatchlogs(match.season);
+  const [matchlogs, detail] = await Promise.all([
+    getMatchlogs(match.season),
+    getMatchDetail(match.date),
+  ]);
   const prev = idx > 0 ? matches[idx - 1] : null;
   const next = idx < matches.length - 1 ? matches[idx + 1] : null;
 
@@ -33,6 +36,7 @@ export default async function MatchPage({
       <MatchReport
         match={match}
         matchlogs={matchlogs}
+        detail={detail}
         prev={prev ? { date: prev.date, opponent: prev.opponent } : null}
         next={next ? { date: next.date, opponent: next.opponent } : null}
       />

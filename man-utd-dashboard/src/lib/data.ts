@@ -1,7 +1,8 @@
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { cache } from 'react';
-import { hasDatabase, queryDataset, queryMatches, querySeasonRows } from './db';
+import { hasDatabase, queryDataset, queryMatches, querySeasonRows, saveDataset } from './db';
+import { fetchMatchDetail, type MatchDetail } from './understat';
 import type { SeasonRow, MatchRow, KeepersData, SquadData, PlayersData, AttackBySeason, SeasonMatchlogs } from './types';
 
 const DATA_DIR = join(process.cwd(), 'data');
@@ -202,4 +203,49 @@ export const getMatchlogs = cache(async (season: string): Promise<SeasonMatchlog
   const key = `matchlogs-${season}`;
   if (hasDatabase()) return await queryDataset<SeasonMatchlogs>(key) ?? {};
   return readJson<SeasonMatchlogs>(join(process.cwd(), 'public', 'data', `${key}.json`), {});
+});
+
+function understatIndexFromFiles(): Record<string, string> {
+  const dir = join(DATA_DIR, 'raw');
+  if (!existsSync(dir)) return {};
+  const index: Record<string, string> = {};
+  for (const name of readdirSync(dir)) {
+    if (!/^understat-\d+\.json$/.test(name)) continue;
+    try {
+      const data = JSON.parse(readFileSync(join(dir, name), 'utf8')) as {
+        dates?: Array<{ id?: string; datetime?: string; isResult?: boolean }>;
+      };
+      for (const entry of data.dates ?? []) {
+        if (entry.id && entry.datetime && entry.isResult) {
+          index[entry.datetime.slice(0, 10)] = entry.id;
+        }
+      }
+    } catch {
+      continue;
+    }
+  }
+  return index;
+}
+
+export const getUnderstatIndex = cache(async (): Promise<Record<string, string>> => {
+  if (hasDatabase()) {
+    return (await queryDataset<Record<string, string>>('understat-index')) ?? {};
+  }
+  return understatIndexFromFiles();
+});
+
+export const getMatchDetail = cache(async (date: string): Promise<MatchDetail | null> => {
+  const key = `matchdetail-${date}`;
+  if (hasDatabase()) {
+    const cached = await queryDataset<MatchDetail>(key);
+    if (cached) return cached;
+  }
+  const index = await getUnderstatIndex();
+  const id = index[date];
+  if (!id) return null;
+  const detail = await fetchMatchDetail(id);
+  if (detail && hasDatabase()) {
+    await saveDataset(key, detail).catch(() => {});
+  }
+  return detail;
 });

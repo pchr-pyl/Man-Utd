@@ -42,3 +42,12 @@ export async function queryDataset<T>(key: string): Promise<T | null> {
   const rows = await getClient().query('SELECT payload FROM datasets WHERE key = $1', [key]);
   return rows.length === 0 ? null : rows[0].payload as T;
 }
+
+export async function saveDataset(key: string, payload: unknown): Promise<void> {
+  await getClient().query(
+    `INSERT INTO datasets (key, payload, updated_at)
+     VALUES ($1, $2::jsonb, now())
+     ON CONFLICT (key) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()`,
+    [key, JSON.stringify(payload)],
+  );
+}

@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, ChevronLeft } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import type { MatchRow, SeasonMatchlogs } from '@/lib/types';
+import type { MatchDetail } from '@/lib/understat';
+import { goalEvents } from '@/lib/understat';
+import { MatchDetailSections } from './MatchDetail';
 import {
   awayScore,
   awayTeamName,
@@ -116,11 +119,13 @@ export function FixtureCard({ match, titleKey }: { match: MatchRow; titleKey: st
 export function MatchReport({
   match,
   matchlogs,
+  detail,
   prev,
   next,
 }: {
   match: MatchRow;
   matchlogs: SeasonMatchlogs | null;
+  detail?: MatchDetail | null;
   prev?: MatchNav | null;
   next?: MatchNav | null;
 }) {
@@ -130,6 +135,9 @@ export function MatchReport({
   const home = homeTeamName(match);
   const away = awayTeamName(match);
   const comparisons = completed ? buildComparisons(match, matchlogs) : [];
+  const goals = detail ? goalEvents(detail.shots) : [];
+  const homeScorers = goals.filter((g) => g.side === 'h');
+  const awayScorers = goals.filter((g) => g.side === 'a');
 
   const score =
     completed && homeScore(match) != null && awayScore(match) != null
@@ -214,6 +222,13 @@ export function MatchReport({
             <p className="mt-1 text-[11px] font-medium uppercase tracking-wider text-muted">
               {t('match.home')}
             </p>
+            {homeScorers.map((g, i) => (
+              <p key={i} className="mt-0.5 truncate text-xs text-secondary">
+                {g.player}
+                {g.og ? ` (${t('match.og')})` : ''}{' '}
+                <span className="tabular-nums text-muted">{g.minute}&prime;</span>
+              </p>
+            ))}
           </div>
           <div className="flex flex-col items-center gap-1.5">
             <span className="whitespace-nowrap font-display text-3xl font-bold tabular-nums text-primary sm:text-4xl">
@@ -238,6 +253,12 @@ export function MatchReport({
             <p className="mt-1 text-[11px] font-medium uppercase tracking-wider text-muted">
               {t('match.away')}
             </p>
+            {awayScorers.map((g, i) => (
+              <p key={i} className="mt-0.5 truncate text-xs text-secondary">
+                <span className="tabular-nums text-muted">{g.minute}&prime;</span> {g.player}
+                {g.og ? ` (${t('match.og')})` : ''}
+              </p>
+            ))}
           </div>
         </div>
       </section>
@@ -275,6 +296,8 @@ export function MatchReport({
           </div>
         )}
       </section>
+
+      {completed && detail && <MatchDetailSections match={match} detail={detail} />}
 
       {details.length > 0 && (
         <section className="rounded-2xl border border-border bg-surface px-4 py-3 shadow-sm dark:shadow-none">
