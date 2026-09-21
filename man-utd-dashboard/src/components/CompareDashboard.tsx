@@ -37,6 +37,21 @@ function median(values: number[]): number | null {
   return sorted.length % 2 === 1 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
+const MAX_PICK = 10;
+
+const PICK_COLORS = [
+  'var(--brand)',
+  'var(--info)',
+  'var(--success)',
+  'var(--warning)',
+  '#8b5cf6',
+  '#ec4899',
+  '#0d9488',
+  '#ea580c',
+  '#06b6d4',
+  'var(--text-muted)',
+];
+
 interface SeasonStats {
   w: number;
   d: number;
@@ -87,8 +102,18 @@ export function CompareDashboard({ matches }: { matches: MatchRow[] }) {
   const [mode, setMode] = useState<'stage' | 'h2h'>('stage');
   const [n, setN] = useState(latestPlayed > 0 ? latestPlayed : 1);
   const [highlight, setHighlight] = useState<string | null>(null);
-  const [seasonA, setSeasonA] = useState(seasons[seasons.length - 2] ?? latestSeason);
-  const [seasonB, setSeasonB] = useState(latestSeason);
+  const [picked, setPicked] = useState<string[]>(() =>
+    [seasons[seasons.length - 2], latestSeason].filter((s): s is string => Boolean(s)),
+  );
+
+  const togglePick = (s: string) =>
+    setPicked((prev) =>
+      prev.includes(s)
+        ? prev.filter((x) => x !== s)
+        : prev.length < MAX_PICK
+          ? [...prev, s]
+          : prev,
+    );
 
   const cumMap = useMemo(() => {
     const map = new Map<string, number[]>();
@@ -169,58 +194,47 @@ export function CompareDashboard({ matches }: { matches: MatchRow[] }) {
     });
   }, [cumMap, maxN]);
 
-  // ---- head-to-head view ----
+  // ---- head-to-head view (up to MAX_PICK seasons) ----
 
-  const plA = useMemo(() => plBySeason.get(seasonA) ?? [], [plBySeason, seasonA]);
-  const plB = useMemo(() => plBySeason.get(seasonB) ?? [], [plBySeason, seasonB]);
-
-  const cumA = useMemo(() => cumPoints(plA), [plA]);
-  const cumB = useMemo(() => cumPoints(plB), [plB]);
+  const pickedCum = useMemo(
+    () => picked.map((s) => cumMap.get(s) ?? []),
+    [picked, cumMap],
+  );
 
   const chartData = useMemo(() => {
-    const max = Math.max(cumA.length, cumB.length);
-    return Array.from({ length: max }, (_, i) => ({
-      match: i + 1,
-      pointsA: cumA[i] ?? null,
-      pointsB: cumB[i] ?? null,
-    }));
-  }, [cumA, cumB]);
+    const max = Math.max(0, ...pickedCum.map((c) => c.length));
+    return Array.from({ length: max }, (_, i) => {
+      const row: Record<string, number | null> = { match: i + 1 };
+      picked.forEach((s, idx) => {
+        row[s] = pickedCum[idx][i] ?? null;
+      });
+      return row;
+    });
+  }, [picked, pickedCum]);
 
-  const matchweek = Math.min(plA.length, plB.length);
+  const matchweek = pickedCum.length > 0 ? Math.min(...pickedCum.map((c) => c.length)) : 0;
 
-  const statsA = useMemo<SeasonStats>(() => {
-    const slice = plA.slice(0, matchweek);
-    const w = slice.filter((m) => m.result === 'W').length;
-    const d = slice.filter((m) => m.result === 'D').length;
-    const l = slice.filter((m) => m.result === 'L').length;
-    const total = slice.length;
-    return {
-      w,
-      d,
-      l,
-      winRate: total > 0 ? w / total : null,
-      drawRate: total > 0 ? d / total : null,
-      lossRate: total > 0 ? l / total : null,
-      points: total > 0 ? cumA[matchweek - 1] ?? null : null,
-    };
-  }, [plA, matchweek, cumA]);
-
-  const statsB = useMemo<SeasonStats>(() => {
-    const slice = plB.slice(0, matchweek);
-    const w = slice.filter((m) => m.result === 'W').length;
-    const d = slice.filter((m) => m.result === 'D').length;
-    const l = slice.filter((m) => m.result === 'L').length;
-    const total = slice.length;
-    return {
-      w,
-      d,
-      l,
-      winRate: total > 0 ? w / total : null,
-      drawRate: total > 0 ? d / total : null,
-      lossRate: total > 0 ? l / total : null,
-      points: total > 0 ? cumB[matchweek - 1] ?? null : null,
-    };
-  }, [plB, matchweek, cumB]);
+  const statsBySeason = useMemo(() => {
+    const map = new Map<string, SeasonStats>();
+    picked.forEach((s, idx) => {
+      const rows = plBySeason.get(s) ?? [];
+      const slice = rows.slice(0, matchweek);
+      const w = slice.filter((m) => m.result === 'W').length;
+      const d = slice.filter((m) => m.result === 'D').length;
+      const l = slice.filter((m) => m.result === 'L').length;
+      const total = slice.length;
+      map.set(s, {
+        w,
+        d,
+        l,
+        winRate: total > 0 ? w / total : null,
+        drawRate: total > 0 ? d / total : null,
+        lossRate: total > 0 ? l / total : null,
+        points: total > 0 ? pickedCum[idx][matchweek - 1] ?? null : null,
+      });
+    });
+    return map;
+  }, [picked, plBySeason, matchweek, pickedCum]);
 
   const axisTick = { fill: 'var(--text-muted)', fontSize: 11 };
   const gridStroke = 'var(--border)';
@@ -574,114 +588,122 @@ export function CompareDashboard({ matches }: { matches: MatchRow[] }) {
         </>
       ) : (
         <>
-          <section className="flex min-w-0 flex-col gap-4">
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-2">
-                <label htmlFor="seasonA" className="text-sm text-secondary">
-                  {t('compare.seasonA')}
-                </label>
-                <select
-                  id="seasonA"
-                  value={seasonA}
-                  onChange={(e) => setSeasonA(e.target.value)}
-                  className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-primary"
-                >
-                  {seasons.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex items-center gap-2">
-                <label htmlFor="seasonB" className="text-sm text-secondary">
-                  {t('compare.seasonB')}
-                </label>
-                <select
-                  id="seasonB"
-                  value={seasonB}
-                  onChange={(e) => setSeasonB(e.target.value)}
-                  className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-primary"
-                >
-                  {seasons.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
+          <section className="flex min-w-0 flex-col gap-3">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
+              <span>{t('compare.pickSeasons')}</span>
+              <span className="text-xs">
+                {t('compare.pickedCount').replace('{count}', String(picked.length)).replace('{max}', String(MAX_PICK))}
+              </span>
+            </div>
+            <div className="flex min-w-0 flex-wrap gap-1.5">
+              {seasons.map((s) => {
+                const idx = picked.indexOf(s);
+                const active = idx !== -1;
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => togglePick(s)}
+                    aria-pressed={active}
+                    className={`flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand ${
+                      active
+                        ? 'border-transparent bg-surface-elevated text-primary'
+                        : 'border-border bg-surface text-secondary hover:text-primary'
+                    }`}
+                    style={active ? { boxShadow: `inset 0 0 0 1.5px ${PICK_COLORS[idx]}` } : undefined}
+                  >
+                    {active && (
+                      <span
+                        className="h-2 w-2 rounded-full"
+                        style={{ backgroundColor: PICK_COLORS[idx] }}
+                      />
+                    )}
+                    {seasonShort(s)}
+                  </button>
+                );
+              })}
             </div>
           </section>
 
-          <section className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm dark:shadow-none">
-            <h3 className="mb-3 font-display text-lg font-semibold text-primary">
-              {t('compare.chartTitle')}
-            </h3>
-            <ResponsiveContainer width="100%" height={360}>
-              <LineChart data={chartData} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
-                <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
-                <XAxis
-                  dataKey="match"
-                  tick={axisTick}
-                  axisLine={{ stroke: gridStroke }}
-                  tickLine={false}
-                />
-                <YAxis tick={axisTick} axisLine={false} tickLine={false} width={32} domain={[0, 'auto']} />
-                <Tooltip content={ChartTooltip} />
-                <Line
-                  type="monotone"
-                  dataKey="pointsA"
-                  name={seasonA}
-                  stroke="var(--brand)"
-                  strokeWidth={2.5}
-                  dot={{ r: 3, fill: 'var(--brand)' }}
-                  connectNulls={false}
-                  isAnimationActive={false}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="pointsB"
-                  name={seasonB}
-                  stroke="var(--info)"
-                  strokeWidth={2.5}
-                  dot={{ r: 3, fill: 'var(--info)' }}
-                  connectNulls={false}
-                  isAnimationActive={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </section>
-
-          <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {[statsA, statsB].map((stats, idx) => {
-              const season = idx === 0 ? seasonA : seasonB;
-              return (
-                <div
-                  key={season}
-                  className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm dark:shadow-none"
-                >
-                  <h4 className="mb-3 font-display text-lg font-semibold text-primary">
-                    {t('compare.statTitle').replace('{matchweek}', String(matchweek))} · {season}
-                  </h4>
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    {statItems.map((item) => (
-                      <div
-                        key={item.key}
-                        className="flex flex-col rounded-xl border border-border bg-bg-secondary p-3"
-                      >
-                        <span className="text-xs font-medium text-muted">
-                          {t(`compare.${item.key}`)}
-                        </span>
-                        <span className="mt-1 font-body text-2xl font-bold text-primary">
-                          {item.value(stats)}
-                        </span>
-                      </div>
+          {picked.length === 0 ? (
+            <p className="text-sm text-muted">{t('compare.noSeasons')}</p>
+          ) : (
+            <>
+              <section className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm dark:shadow-none">
+                <h3 className="mb-3 font-display text-lg font-semibold text-primary">
+                  {t('compare.chartTitle')}
+                </h3>
+                <ResponsiveContainer width="100%" height={360}>
+                  <LineChart data={chartData} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
+                    <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
+                    <XAxis
+                      dataKey="match"
+                      tick={axisTick}
+                      axisLine={{ stroke: gridStroke }}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={axisTick}
+                      axisLine={false}
+                      tickLine={false}
+                      width={32}
+                      domain={[0, 'auto']}
+                    />
+                    <Tooltip content={ChartTooltip} />
+                    {picked.map((s, idx) => (
+                      <Line
+                        key={s}
+                        type="monotone"
+                        dataKey={s}
+                        name={seasonShort(s)}
+                        stroke={PICK_COLORS[idx]}
+                        strokeWidth={2.5}
+                        dot={{ r: 3, fill: PICK_COLORS[idx] }}
+                        connectNulls={false}
+                        isAnimationActive={false}
+                      />
                     ))}
-                  </div>
-                </div>
-              );
-            })}
-          </section>
+                  </LineChart>
+                </ResponsiveContainer>
+              </section>
+
+              <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                {picked.map((season, idx) => {
+                  const stats = statsBySeason.get(season);
+                  if (!stats) return null;
+                  return (
+                    <div
+                      key={season}
+                      className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm dark:shadow-none"
+                    >
+                      <h4 className="mb-3 flex items-center gap-2 font-display text-lg font-semibold text-primary">
+                        <span
+                          className="h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: PICK_COLORS[idx] }}
+                        />
+                        {t('compare.statTitle').replace('{matchweek}', String(matchweek))} · {season}
+                      </h4>
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                        {statItems.map((item) => (
+                          <div
+                            key={item.key}
+                            className="flex flex-col rounded-xl border border-border bg-bg-secondary p-3"
+                          >
+                            <span className="text-xs font-medium text-muted">
+                              {t(`compare.${item.key}`)}
+                            </span>
+                            <span className="mt-1 font-body text-2xl font-bold text-primary">
+                              {item.value(stats)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </section>
+            </>
+          )}
         </>
       )}
 
