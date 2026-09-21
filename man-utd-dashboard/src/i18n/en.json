@@ -22,6 +22,9 @@
     "ptsPerMp": "Pts/MP",
     "winPct": "Win %",
     "interim": "interim",
+    "scope": "Competition scope",
+    "scopeAll": "All competitions",
+    "scopeLeague": "Premier League only",
     "noData": "Select at least one manager"
   },
   "competitions": {

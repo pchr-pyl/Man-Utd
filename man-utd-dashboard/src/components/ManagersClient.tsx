@@ -28,7 +28,11 @@ import { fmt, pct } from '@/lib/format';
 
 export function ManagersClient({ matches }: { matches: MatchRow[] }) {
   const { t, lang } = useI18n();
-  const stats = useMemo(() => aggregateManagers(matches), [matches]);
+  const [leagueOnly, setLeagueOnly] = useState(false);
+  const stats = useMemo(
+    () => aggregateManagers(leagueOnly ? matches.filter((m) => m.competition === 'Premier League') : matches),
+    [matches, leagueOnly],
+  );
   const [selected, setSelected] = useState<string[]>(['ferguson', 'mourinho', 'ten-hag']);
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -82,9 +86,32 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
   return (
     <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-6 py-8 lg:px-10">
       <section className="flex flex-col gap-3">
-        <h2 className="font-display text-xl font-semibold text-primary">
-          {t('managers.pick')}
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-display text-xl font-semibold text-primary">
+            {t('managers.pick')}
+          </h2>
+          <div
+            role="group"
+            aria-label={t('managers.scope')}
+            className="inline-flex rounded-full border border-border bg-surface p-0.5"
+          >
+            {([false, true] as const).map((v) => (
+              <button
+                key={String(v)}
+                type="button"
+                onClick={() => setLeagueOnly(v)}
+                aria-pressed={leagueOnly === v}
+                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand ${
+                  leagueOnly === v
+                    ? 'bg-brand-soft text-brand'
+                    : 'text-secondary hover:text-primary'
+                }`}
+              >
+                {v ? t('managers.scopeLeague') : t('managers.scopeAll')}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="flex flex-wrap gap-2">
           {MANAGERS.map((m) => (
             <button
