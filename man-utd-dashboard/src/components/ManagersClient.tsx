@@ -17,7 +17,6 @@ import type { MatchRow } from '@/lib/types';
 import {
   MANAGERS,
   aggregateManagers,
-  isCaretakerOnly,
   ptsOf,
   perMp,
   winPct,
@@ -42,15 +41,19 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
     );
 
   const chosen = MANAGERS.filter((m) => selected.includes(m.id));
-  const name = (id: string) => {
+  const label = (id: string) => {
     const m = MANAGERS.find((x) => x.id === id)!;
-    return lang === 'th' ? m.nameTh : m.name;
+    const base = lang === 'th' ? m.nameTh : m.name;
+    if (MANAGERS.filter((x) => x.name === m.name).length < 2) return base;
+    const fy = m.from.slice(0, 4);
+    const ty = m.to?.slice(0, 4) ?? '';
+    return `${base} ${fy === ty ? fy : `${fy}–${ty}`}`;
   };
 
   const chartData = chosen.map((m) => {
     const s = stats.get(m.id)!.total;
     return {
-      name: name(m.id),
+      name: label(m.id),
       [t('managers.ptsPerMp')]: perMp(ptsOf(s), s.mp) ?? 0,
       [t('managers.winPct')]: (winPct(s) ?? 0) * 100,
     };
@@ -125,8 +128,8 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
               }`}
               aria-pressed={selected.includes(m.id)}
             >
-              {name(m.id)}
-              {isCaretakerOnly(m) && (
+              {label(m.id)}
+              {m.interim && (
                 <span className="ml-1 text-xs text-muted">
                   ({t('managers.interim')})
                 </span>
@@ -233,8 +236,8 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
                     <td className="px-3 py-2.5 text-sm font-medium text-primary">
                       <span className="flex items-center gap-1.5">
                         {isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                        {name(m.id)}
-                        {isCaretakerOnly(m) && (
+                        {label(m.id)}
+                        {m.interim && (
                           <span className="text-xs text-muted">
                             ({t('managers.interim')})
                           </span>
