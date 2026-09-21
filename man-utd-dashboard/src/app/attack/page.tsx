@@ -1,11 +1,12 @@
+import { connection } from 'next/server';
 import { getSeasonRows, getAttack } from '@/lib/data';
 import { seasonShort } from '@/lib/stats';
 import { AppHeader } from '@/components/AppHeader';
 import { AttackDashboard } from '@/components/AttackDashboard';
 
 export default async function AttackPage() {
-  const rows = getSeasonRows();
-  const attack = getAttack();
+  await connection();
+  const [rows, attack] = await Promise.all([getSeasonRows(), getAttack()]);
   const allRows = rows.filter((r) => r.competition === 'All Competitions');
   const sorted = [...allRows].sort((a, b) => a.season.localeCompare(b.season));
   const first = sorted[0]?.season ?? '';

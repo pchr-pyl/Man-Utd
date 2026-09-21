@@ -1,6 +1,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { cache } from 'react';
+import { hasDatabase, queryDataset, queryMatches, querySeasonRows } from './db';
 import type { SeasonRow, MatchRow, KeepersData, SquadData, PlayersData, AttackBySeason } from './types';
 
 const DATA_DIR = join(process.cwd(), 'data');
@@ -157,52 +158,42 @@ function parseSeasonsFromCsv(text: string): SeasonRow[] {
   return rows;
 }
 
-export const getSeasonRows = cache((): SeasonRow[] => {
-  if (existsSync(JSON_PATH)) {
-    const text = readFileSync(JSON_PATH, 'utf-8');
-    return JSON.parse(text) as SeasonRow[];
-  }
+function readJson<T>(path: string, fallback: T): T {
+  if (!existsSync(path)) return fallback;
+  return JSON.parse(readFileSync(path, 'utf-8')) as T;
+}
 
-  if (existsSync(CSV_PATH)) {
-    const text = readFileSync(CSV_PATH, 'utf-8');
-    return parseSeasonsFromCsv(text);
-  }
-
+export const getSeasonRows = cache(async (): Promise<SeasonRow[]> => {
+  if (hasDatabase()) return querySeasonRows();
+  if (existsSync(JSON_PATH)) return readJson<SeasonRow[]>(JSON_PATH, []);
+  if (existsSync(CSV_PATH)) return parseSeasonsFromCsv(readFileSync(CSV_PATH, 'utf-8'));
   throw new Error('Data file not found: expected data/man-utd-seasons.json or .csv');
 });
 
-export const getMatches = cache((): MatchRow[] => {
-  if (!existsSync(MATCHES_PATH)) return [];
-  const text = readFileSync(MATCHES_PATH, 'utf-8');
-  return JSON.parse(text) as MatchRow[];
+export const getMatches = cache(async (): Promise<MatchRow[]> => {
+  if (hasDatabase()) return queryMatches();
+  return readJson<MatchRow[]>(MATCHES_PATH, []);
 });
 
-export const getKeepers = cache((): KeepersData => {
-  if (!existsSync(KEEPERS_PATH)) {
-    return { matchLog: [], perGkSeason: [], psxg: [], psxgPerGk: [] };
-  }
-  const text = readFileSync(KEEPERS_PATH, 'utf-8');
-  return JSON.parse(text) as KeepersData;
+export const getKeepers = cache(async (): Promise<KeepersData> => {
+  const fallback = { matchLog: [], perGkSeason: [], psxg: [], psxgPerGk: [] };
+  if (hasDatabase()) return await queryDataset<KeepersData>('keepers') ?? fallback;
+  return readJson<KeepersData>(KEEPERS_PATH, fallback);
 });
 
-export const getSquad = cache((): SquadData => {
-  if (!existsSync(SQUAD_PATH)) {
-    return { updated: null, players: [] };
-  }
-  const text = readFileSync(SQUAD_PATH, 'utf-8');
-  return JSON.parse(text) as SquadData;
+export const getSquad = cache(async (): Promise<SquadData> => {
+  const fallback = { updated: null, players: [] };
+  if (hasDatabase()) return await queryDataset<SquadData>('squad') ?? fallback;
+  return readJson<SquadData>(SQUAD_PATH, fallback);
 });
 
-export const getPlayers = cache((): PlayersData => {
-  if (!existsSync(PLAYERS_PATH)) {
-    return { seasons: {}, latest: '' };
-  }
-  const text = readFileSync(PLAYERS_PATH, 'utf-8');
-  return JSON.parse(text) as PlayersData;
+export const getPlayers = cache(async (): Promise<PlayersData> => {
+  const fallback = { seasons: {}, latest: '' };
+  if (hasDatabase()) return await queryDataset<PlayersData>('players') ?? fallback;
+  return readJson<PlayersData>(PLAYERS_PATH, fallback);
 });
 
-export const getAttack = cache((): AttackBySeason => {
-  if (!existsSync(ATTACK_PATH)) return {};
-  const text = readFileSync(ATTACK_PATH, 'utf-8');
-  return JSON.parse(text) as AttackBySeason;
+export const getAttack = cache(async (): Promise<AttackBySeason> => {
+  if (hasDatabase()) return await queryDataset<AttackBySeason>('attack') ?? {};
+  return readJson<AttackBySeason>(ATTACK_PATH, {});
 });

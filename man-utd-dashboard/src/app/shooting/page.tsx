@@ -1,11 +1,12 @@
+import { connection } from 'next/server';
 import { getSeasonRows, getMatches } from '@/lib/data';
 import { seasonShort } from '@/lib/stats';
 import { AppHeader } from '@/components/AppHeader';
 import { MatchlogBrowser } from '@/components/MatchlogBrowser';
 
 export default async function ShootingPage() {
-  const rows = getSeasonRows();
-  const matches = getMatches();
+  await connection();
+  const [rows, matches] = await Promise.all([getSeasonRows(), getMatches()]);
   const allRows = rows.filter((r) => r.competition === 'All Competitions');
   const sorted = [...allRows].sort((a, b) => a.season.localeCompare(b.season));
   const first = sorted[0]?.season ?? '';

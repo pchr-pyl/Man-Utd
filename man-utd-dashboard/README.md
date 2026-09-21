@@ -37,10 +37,30 @@ python scripts/build_matches.py
 
 Columns follow fbref's "Scores & Fixtures" log: `date`, `competition`, `round`, `venue`, `result`, `gf`/`ga` (plus `gfPens`/`gaPens` for shoot-outs), `opponent`, `possession`, `attendance`, `captain`, `formation`, `oppFormation`, `referee`, `notes`, and `xg`/`xga` merged from Understat where available (Premier League, 2014-15+).
 
-## Deploy
+## Neon database
 
-Deploy with Vercel or any Next.js-compatible host:
+Create a Neon Postgres database, copy `.env.example` to `.env.local`, and set `DATABASE_URL` to the pooled Neon connection string. Apply the schema and import the generated dashboard data with:
 
 ```bash
-vercel
+npm run db:setup
 ```
+
+The application reads from Neon whenever `DATABASE_URL` is present. Without it, local development falls back to the checked-in files under `data/`.
+
+After refreshing the fbref/Understat files, rebuild the datasets and sync Neon:
+
+```bash
+python -X utf8 scripts/build_data.py
+python -X utf8 scripts/build_matches.py
+npm run db:seed
+```
+
+## Deploy to Vercel
+
+Import the GitHub repository into Vercel and configure:
+
+- Root Directory: `man-utd-dashboard`
+- Framework Preset: Next.js
+- Environment Variable: `DATABASE_URL` with the pooled Neon connection string
+
+Run `npm run db:setup` once against the production database before opening the deployment. Vercel then uses the standard `npm run build` command.

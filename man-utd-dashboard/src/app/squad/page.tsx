@@ -1,12 +1,12 @@
+import { connection } from 'next/server';
 import { getSquad, getSeasonRows, getPlayers } from '@/lib/data';
 import { seasonShort } from '@/lib/stats';
 import { AppHeader } from '@/components/AppHeader';
 import { SquadDashboard } from '@/components/SquadDashboard';
 
 export default async function SquadPage() {
-  const squad = getSquad();
-  const players = getPlayers();
-  const rows = getSeasonRows();
+  await connection();
+  const [squad, players, rows] = await Promise.all([getSquad(), getPlayers(), getSeasonRows()]);
   const allRows = rows.filter((r) => r.competition === 'All Competitions');
   const sorted = [...allRows].sort((a, b) => a.season.localeCompare(b.season));
   const first = sorted[0]?.season ?? '';

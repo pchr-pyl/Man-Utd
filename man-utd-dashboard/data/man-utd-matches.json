@@ -39911,9 +39911,9 @@
   "competition": "Premier League",
   "round": "Matchweek 5",
   "venue": "Away",
-  "result": null,
-  "gf": null,
-  "ga": null,
+  "result": "D",
+  "gf": 1,
+  "ga": 1,
   "gfPens": null,
   "gaPens": null,
   "opponent": "Fulham",
@@ -39924,8 +39924,8 @@
   "oppFormation": null,
   "referee": null,
   "notes": null,
-  "xg": null,
-  "xga": null
+  "xg": 2.12,
+  "xga": 1.72
  },
  {
   "season": "2026-2027",

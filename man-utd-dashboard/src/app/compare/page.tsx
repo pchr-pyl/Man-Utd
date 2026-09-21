@@ -1,11 +1,12 @@
+import { connection } from 'next/server';
 import { getMatches, getSeasonRows } from '@/lib/data';
 import { seasonShort } from '@/lib/stats';
 import { AppHeader } from '@/components/AppHeader';
 import { CompareDashboard } from '@/components/CompareDashboard';
 
 export default async function ComparePage() {
-  const matches = getMatches();
-  const rows = getSeasonRows();
+  await connection();
+  const [matches, rows] = await Promise.all([getMatches(), getSeasonRows()]);
   const allRows = rows.filter((r) => r.competition === 'All Competitions');
   const sorted = [...allRows].sort((a, b) => a.season.localeCompare(b.season));
   const first = sorted[0]?.season ?? '';

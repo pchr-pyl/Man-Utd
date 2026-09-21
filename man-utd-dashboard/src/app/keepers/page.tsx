@@ -1,11 +1,12 @@
+import { connection } from 'next/server';
 import { getKeepers, getSeasonRows } from '@/lib/data';
 import { seasonShort } from '@/lib/stats';
 import { AppHeader } from '@/components/AppHeader';
 import { KeepersDashboard } from '@/components/KeepersDashboard';
 
 export default async function KeepersPage() {
-  const keepers = getKeepers();
-  const rows = getSeasonRows();
+  await connection();
+  const [keepers, rows] = await Promise.all([getKeepers(), getSeasonRows()]);
   const allRows = rows.filter((r) => r.competition === 'All Competitions');
   const sorted = [...allRows].sort((a, b) => a.season.localeCompare(b.season));
   const first = sorted[0]?.season ?? '';
