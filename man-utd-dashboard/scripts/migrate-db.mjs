@@ -23,7 +23,11 @@ const migrations = (await readdir(migrationsDir)).filter((name) => name.endsWith
 for (const version of migrations) {
   if (applied.has(version)) continue;
   const migration = await readFile(join(migrationsDir, version), 'utf8');
-  await sql.query(migration);
+  const statements = migration
+    .split(';')
+    .map((statement) => statement.trim())
+    .filter(Boolean);
+  for (const statement of statements) await sql.query(statement);
   await sql`INSERT INTO schema_migrations (version) VALUES (${version}) ON CONFLICT DO NOTHING`;
   console.log(`applied ${version}`);
 }
