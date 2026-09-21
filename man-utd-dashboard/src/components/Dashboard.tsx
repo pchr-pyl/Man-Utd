@@ -26,6 +26,27 @@ export function Dashboard({ rows, matches }: { rows: SeasonRow[]; matches: Match
   const lastSeason = seasons[seasons.length - 1] ?? '';
   const lo = from ?? firstSeason;
   const hi = to ?? lastSeason;
+
+  const EPL_START = '1992-1993';
+  const eplIdx = seasons.indexOf(EPL_START);
+  const eplStart = eplIdx === -1 ? undefined : EPL_START;
+  const firstDivEnd = eplIdx > 0 ? seasons[eplIdx - 1] : undefined;
+
+  const eraDefs = useMemo(
+    () =>
+      [
+        { key: 'all', lo: firstSeason, hi: lastSeason },
+        ...(eplStart ? [{ key: 'epl', lo: eplStart, hi: lastSeason }] : []),
+        ...(firstDivEnd ? [{ key: 'firstDiv', lo: firstSeason, hi: firstDivEnd }] : []),
+      ] as { key: string; lo: string; hi: string }[],
+    [firstSeason, lastSeason, eplStart, firstDivEnd]
+  );
+  const activeEra = eraDefs.find((e) => e.lo === lo && e.hi === hi)?.key;
+
+  const applyEra = (era: { lo: string; hi: string }) => {
+    setFrom(era.lo === firstSeason ? null : era.lo);
+    setTo(era.hi === lastSeason ? null : era.hi);
+  };
   const rangedRows = useMemo(
     () => groupRows.filter((r) => r.season >= lo && r.season <= hi),
     [groupRows, lo, hi]
@@ -71,6 +92,22 @@ export function Dashboard({ rows, matches }: { rows: SeasonRow[]; matches: Match
                 </option>
               ))}
             </select>
+            <span className="mx-1 h-5 w-px bg-border" aria-hidden="true" />
+            {eraDefs.map((era) => (
+              <button
+                key={era.key}
+                type="button"
+                onClick={() => applyEra(era)}
+                aria-pressed={activeEra === era.key}
+                className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand ${
+                  activeEra === era.key
+                    ? 'bg-brand-soft text-brand'
+                    : 'bg-surface border border-border text-secondary hover:text-primary'
+                }`}
+              >
+                {t(`filter.era.${era.key}`)}
+              </button>
+            ))}
           </div>
         </div>
         <KpiCards rows={rangedRows} />

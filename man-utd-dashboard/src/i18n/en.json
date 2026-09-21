@@ -5,7 +5,12 @@
   },
   "filter": {
     "from": "From",
-    "to": "To"
+    "to": "To",
+    "era": {
+      "all": "All",
+      "epl": "EPL",
+      "firstDiv": "First Division"
+    }
   },
   "managers": {
     "pick": "Select managers to compare",
@@ -286,6 +291,20 @@
     "lossRate": "Loss %",
     "points": "Pts",
     "matchweek": "Matchweek",
-    "note": "Premier League matches played only"
+    "note": "Premier League matches played only",
+    "modeStage": "All seasons, same stage",
+    "modeH2h": "Head-to-head",
+    "afterN": "After {n} league matches",
+    "stageChartTitle": "Points pace — every season",
+    "tableTitleN": "First {n} league matches by season",
+    "rank": "Rank",
+    "thisSeason": "This season",
+    "best": "Best",
+    "worst": "Worst",
+    "median": "Median",
+    "current": "current",
+    "allSeasons": "All seasons",
+    "chartHint": "Gray lines = every season since 1992-93 · click a table row to highlight that season",
+    "notReached": "{season} has only played {played} league matches — excluded above {n}"
   }
 }
