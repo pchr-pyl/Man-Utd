@@ -9,6 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
   Tooltip,
+  TooltipContentProps,
   XAxis,
   YAxis,
 } from 'recharts';
@@ -24,6 +25,7 @@ import {
   type ManagerStats,
 } from '@/lib/managers';
 import { fmt, pct } from '@/lib/format';
+import { ColTip } from './ColTip';
 
 export function ManagersClient({ matches }: { matches: MatchRow[] }) {
   const { t, lang } = useI18n();
@@ -50,14 +52,52 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
     return `${base} ${fy === ty ? fy : `${fy}–${ty}`}`;
   };
 
+  const ptsKey = t('managers.ptsPerMp');
+  const pctKey = t('managers.winPct');
   const chartData = chosen.map((m) => {
     const s = stats.get(m.id)!.total;
     return {
       name: label(m.id),
-      [t('managers.ptsPerMp')]: perMp(ptsOf(s), s.mp) ?? 0,
-      [t('managers.winPct')]: (winPct(s) ?? 0) * 100,
+      [ptsKey]: perMp(ptsOf(s), s.mp) ?? 0,
+      [pctKey]: (winPct(s) ?? 0) * 100,
+      mp: s.mp,
+      wdl: `${s.w}–${s.d}–${s.l}`,
     };
   });
+
+  function ChartTooltip({ active, payload, label }: TooltipContentProps) {
+    if (!active || !payload?.length) return null;
+    const meta = payload[0]?.payload as { mp?: number; wdl?: string };
+    return (
+      <div className="rounded-lg border border-border bg-surface-elevated p-3 shadow-sm">
+        <p className="mb-1 text-xs font-semibold text-primary">{label}</p>
+        <div className="flex flex-col gap-1">
+          {payload.map((entry, idx) => {
+            const v = entry.value;
+            const text =
+              typeof v === 'number' && !Number.isNaN(v)
+                ? entry.dataKey === pctKey
+                  ? `${fmt(v, 2)}%`
+                  : fmt(v, 2)
+                : '—';
+            const color = entry.color ?? 'var(--text-muted)';
+            return (
+              <div key={idx} className="flex items-center gap-2 text-xs text-secondary">
+                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
+                <span className="font-medium" style={{ color }}>{String(entry.name)}:</span>
+                <span className="font-semibold text-primary">{text}</span>
+              </div>
+            );
+          })}
+        </div>
+        {meta?.mp != null && (
+          <p className="mt-1.5 border-t border-border pt-1.5 text-[11px] text-muted">
+            {t('table.mp')} {meta.mp} · {meta.wdl}
+          </p>
+        )}
+      </div>
+    );
+  }
 
   const row = (s: ManagerStats, indent = false) => (
     <>
@@ -146,7 +186,7 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
           </h3>
           <div className="h-64 w-full">
             <ResponsiveContainer>
-              <BarChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+              <BarChart data={chartData} margin={{ top: 18, right: 16, left: 0, bottom: 0 }}>
                 <CartesianGrid stroke="var(--border-light)" vertical={false} />
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--text-muted)' }} />
                 <YAxis
@@ -161,27 +201,31 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
                   domain={[0, 100]}
                   tickFormatter={(v: number) => `${v}%`}
                 />
-                <Tooltip
-                  contentStyle={{
-                    background: 'var(--surface-elevated)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 12,
-                    fontSize: 13,
-                  }}
-                  labelStyle={{ color: 'var(--text)' }}
-                />
-                <Legend />
+                <Tooltip content={ChartTooltip} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Bar
                   yAxisId="pts"
-                  dataKey={t('managers.ptsPerMp')}
+                  dataKey={ptsKey}
                   fill="var(--brand)"
                   radius={[4, 4, 0, 0]}
+                  label={{
+                    position: 'top',
+                    fontSize: 10,
+                    fill: 'var(--text-muted)',
+                    formatter: (v) => fmt(Number(v), 2),
+                  }}
                 />
                 <Bar
                   yAxisId="pct"
-                  dataKey={t('managers.winPct')}
+                  dataKey={pctKey}
                   fill="var(--chart-neutral)"
                   radius={[4, 4, 0, 0]}
+                  label={{
+                    position: 'top',
+                    fontSize: 10,
+                    fill: 'var(--text-muted)',
+                    formatter: (v) => `${fmt(Number(v), 2)}%`,
+                  }}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -200,24 +244,24 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
             <thead className="bg-surface-elevated">
               <tr>
                 {[
-                  t('managers.colManager'),
-                  t('managers.colPeriod'),
-                  t('table.mp'),
-                  'W–D–L',
-                  t('table.ptsPerMp'),
-                  t('table.winRate'),
-                  'GF/GA ' + t('managers.perMp'),
-                  t('table.csRate'),
-                  'xG/' + t('managers.perMp'),
-                  'xGA/' + t('managers.perMp'),
-                ].map((h, i) => (
+                  { h: t('managers.colManager'), tip: t('tip.manager') },
+                  { h: t('managers.colPeriod'), tip: t('tip.period') },
+                  { h: t('table.mp'), tip: t('tip.mp') },
+                  { h: 'W–D–L', tip: t('tip.wdl') },
+                  { h: t('table.ptsPerMp'), tip: t('tip.ptsPerMp') },
+                  { h: t('table.winRate'), tip: t('tip.winRate') },
+                  { h: 'GF/GA ' + t('managers.perMp'), tip: t('tip.gfGaPerMp') },
+                  { h: t('table.csRate'), tip: t('tip.csRate') },
+                  { h: 'xG/' + t('managers.perMp'), tip: t('tip.xgPerMp') },
+                  { h: 'xGA/' + t('managers.perMp'), tip: t('tip.xgaPerMp') },
+                ].map(({ h, tip }, i) => (
                   <th
                     key={i}
                     className={`border-b border-border px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted ${
                       i < 2 ? 'text-left' : 'text-right'
                     }`}
                   >
-                    {h}
+                    <ColTip label={h} tip={tip} align={i < 2 ? 'left' : 'right'} />
                   </th>
                 ))}
               </tr>

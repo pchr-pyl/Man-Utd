@@ -17,14 +17,20 @@ export function MatchlogBrowser({
   matches,
   seasons,
   titleKey,
+  season: seasonProp,
+  onSeasonChange,
 }: {
   type: 'scores' | 'shooting' | 'misc';
   matches: MatchRow[];
   seasons: string[];
   titleKey: string;
+  season?: string;
+  onSeasonChange?: (season: string) => void;
 }) {
   const { t } = useI18n();
-  const [season, setSeason] = useState(seasons[seasons.length - 1] ?? '');
+  const [internalSeason, setInternalSeason] = useState(seasons[seasons.length - 1] ?? '');
+  const season = seasonProp ?? internalSeason;
+  const setSeason = onSeasonChange ?? setInternalSeason;
   const [group, setGroup] = useState<CompGroup>('all');
   const [side, setSide] = useState<'for' | 'against'>('for');
   const [loaded, setLoaded] = useState<{ season: string; data: SeasonMatchlogs } | null>(null);

@@ -16,6 +16,7 @@ import {
 import { useI18n } from '@/i18n/I18nContext';
 import type { SquadData, SquadPlayer, PlayersData, PlayerSeasonStats } from '@/lib/types';
 import { fmt, gbp, dash } from '@/lib/format';
+import { ColTip } from './ColTip';
 
 type SortKey = 'name' | 'pos' | 'age' | 'weeklyGross' | 'yearlyGross' | 'expires' | 'status';
 type SortDir = 'asc' | 'desc';
@@ -112,24 +113,27 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
       { key: '28–31', max: 31 },
       { key: '32+', max: Infinity },
     ];
-    const out = bands.map((b) => ({ band: b.key, count: 0 }));
+    const out = bands.map((b) => ({ band: b.key, count: 0, names: [] as string[] }));
     for (const p of players) {
       if (p.age == null) continue;
       const band = bands.find((b) => p.age! <= b.max) ?? bands[bands.length - 1];
       const item = out.find((o) => o.band === band.key)!;
       item.count += 1;
+      item.names.push(p.name);
     }
     return out;
   }, [players]);
 
   const expiry = useMemo(() => {
-    const groups = new Map<string, number>();
+    const groups = new Map<string, string[]>();
     for (const p of players) {
       if (!p.expires) continue;
-      groups.set(p.expires, (groups.get(p.expires) ?? 0) + 1);
+      const arr = groups.get(p.expires) ?? [];
+      arr.push(p.name);
+      groups.set(p.expires, arr);
     }
     return Array.from(groups.entries())
-      .map(([year, count]) => ({ year, count }))
+      .map(([year, names]) => ({ year, count: names.length, names }))
       .sort((a, b) => a.year.localeCompare(b.year));
   }, [players]);
 
@@ -239,6 +243,7 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
 
   function ChartTooltip({ active, payload, label }: TooltipContentProps) {
     if (!active || !payload?.length) return null;
+    const names = (payload[0]?.payload as { names?: string[] } | undefined)?.names ?? [];
     return (
       <div className="rounded-lg border border-border bg-surface-elevated p-3 shadow-sm">
         <p className="mb-1 text-xs font-semibold text-primary">{label}</p>
@@ -250,11 +255,17 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
             return (
               <div key={idx} className="flex items-center gap-2 text-xs text-secondary">
                 <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
+                <span className="font-medium" style={{ color }}>{String(entry.name)}:</span>
                 <span className="font-semibold text-primary">{text}</span>
               </div>
             );
           })}
         </div>
+        {names.length > 0 && (
+          <p className="mt-1.5 max-w-60 border-t border-border pt-1.5 text-[11px] leading-snug text-muted">
+            {names.join(' · ')}
+          </p>
+        )}
       </div>
     );
   }
@@ -267,32 +278,32 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
     { label: t('squad.kpi.avgAge'), value: fmt(avgAge, 2) },
   ].filter((k) => k.value !== '—');
 
-  const columns: { key: SortKey; label: string; align: 'left' | 'right' }[] = [
-    { key: 'name', label: t('squad.table.name'), align: 'left' },
-    { key: 'pos', label: t('squad.table.pos'), align: 'left' },
-    { key: 'age', label: t('squad.table.age'), align: 'right' },
-    { key: 'weeklyGross', label: t('squad.table.weeklyGross'), align: 'right' },
-    { key: 'yearlyGross', label: t('squad.table.yearlyGross'), align: 'right' },
-    { key: 'expires', label: t('squad.table.expires'), align: 'right' },
-    { key: 'status', label: t('squad.table.status'), align: 'left' },
+  const columns: { key: SortKey; label: string; align: 'left' | 'right'; tip?: string }[] = [
+    { key: 'name', label: t('squad.table.name'), align: 'left', tip: t('tip.name') },
+    { key: 'pos', label: t('squad.table.pos'), align: 'left', tip: t('tip.pos') },
+    { key: 'age', label: t('squad.table.age'), align: 'right', tip: t('tip.age') },
+    { key: 'weeklyGross', label: t('squad.table.weeklyGross'), align: 'right', tip: t('tip.weeklyGross') },
+    { key: 'yearlyGross', label: t('squad.table.yearlyGross'), align: 'right', tip: t('tip.yearlyGross') },
+    { key: 'expires', label: t('squad.table.expires'), align: 'right', tip: t('tip.expires') },
+    { key: 'status', label: t('squad.table.status'), align: 'left', tip: t('tip.status') },
   ];
 
-  const perfColumns: { key: PerfSortKey; label: string; align: 'left' | 'right'; dec?: number }[] = [
-    { key: 'player', label: t('squad.col.player'), align: 'left' },
-    { key: 'pos', label: t('squad.col.pos'), align: 'left' },
-    { key: 'age', label: t('squad.col.age'), align: 'right', dec: 0 },
-    { key: 'mp', label: t('squad.col.mp'), align: 'right', dec: 0 },
-    { key: 'starts', label: t('squad.col.starts'), align: 'right', dec: 0 },
-    { key: 'min', label: t('squad.col.min'), align: 'right', dec: 0 },
-    { key: 'gls', label: t('squad.col.gls'), align: 'right', dec: 0 },
-    { key: 'ast', label: t('squad.col.ast'), align: 'right', dec: 0 },
-    { key: 'gPlusA', label: t('squad.col.gPlusA'), align: 'right', dec: 0 },
-    { key: 'crdY', label: t('squad.col.crdY'), align: 'right', dec: 0 },
-    { key: 'crdR', label: t('squad.col.crdR'), align: 'right', dec: 0 },
-    { key: 'sh', label: t('squad.col.sh'), align: 'right', dec: 0 },
-    { key: 'sot', label: t('squad.col.sot'), align: 'right', dec: 0 },
-    { key: 'sotPct', label: t('squad.col.sotPct'), align: 'right' },
-    { key: 'gPerSh', label: t('squad.col.gPerSh'), align: 'right' },
+  const perfColumns: { key: PerfSortKey; label: string; align: 'left' | 'right'; dec?: number; tip?: string }[] = [
+    { key: 'player', label: t('squad.col.player'), align: 'left', tip: t('tip.player') },
+    { key: 'pos', label: t('squad.col.pos'), align: 'left', tip: t('tip.pos') },
+    { key: 'age', label: t('squad.col.age'), align: 'right', dec: 0, tip: t('tip.age') },
+    { key: 'mp', label: t('squad.col.mp'), align: 'right', dec: 0, tip: t('tip.mp') },
+    { key: 'starts', label: t('squad.col.starts'), align: 'right', dec: 0, tip: t('tip.starts') },
+    { key: 'min', label: t('squad.col.min'), align: 'right', dec: 0, tip: t('tip.min') },
+    { key: 'gls', label: t('squad.col.gls'), align: 'right', dec: 0, tip: t('tip.gls') },
+    { key: 'ast', label: t('squad.col.ast'), align: 'right', dec: 0, tip: t('tip.ast') },
+    { key: 'gPlusA', label: t('squad.col.gPlusA'), align: 'right', dec: 0, tip: t('tip.gPlusA') },
+    { key: 'crdY', label: t('squad.col.crdY'), align: 'right', dec: 0, tip: t('tip.crdY') },
+    { key: 'crdR', label: t('squad.col.crdR'), align: 'right', dec: 0, tip: t('tip.crdR') },
+    { key: 'sh', label: t('squad.col.sh'), align: 'right', dec: 0, tip: t('tip.sh') },
+    { key: 'sot', label: t('squad.col.sot'), align: 'right', dec: 0, tip: t('tip.sot') },
+    { key: 'sotPct', label: t('squad.col.sotPct'), align: 'right', tip: t('tip.sotPct') },
+    { key: 'gPerSh', label: t('squad.col.gPerSh'), align: 'right', tip: t('tip.gPerSh') },
   ];
 
   const renderPerfCell = (p: PlayerSeasonStats, key: PerfSortKey, dec?: number) => {
@@ -348,24 +359,38 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <ChartCard title={t('squad.chart.ageTitle')}>
           <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={ageBands} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
+            <BarChart data={ageBands} margin={{ top: 20, right: 8, bottom: 8, left: 0 }}>
               <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="band" tick={axisTick} axisLine={{ stroke: gridStroke }} tickLine={false} />
               <YAxis tick={axisTick} axisLine={false} tickLine={false} width={32} />
               <Tooltip content={ChartTooltip} />
-              <Bar dataKey="count" fill="var(--brand)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+              <Bar
+                dataKey="count"
+                name={t('squad.kpi.playerCount')}
+                fill="var(--brand)"
+                radius={[4, 4, 0, 0]}
+                isAnimationActive={false}
+                label={{ position: 'top', fontSize: 11, fill: 'var(--text-muted)' }}
+              />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
 
         <ChartCard title={t('squad.chart.expiryTitle')}>
           <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={expiry} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
+            <BarChart data={expiry} margin={{ top: 20, right: 8, bottom: 8, left: 0 }}>
               <CartesianGrid stroke={gridStroke} strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="year" tick={axisTick} axisLine={{ stroke: gridStroke }} tickLine={false} />
               <YAxis tick={axisTick} axisLine={false} tickLine={false} width={32} />
               <Tooltip content={ChartTooltip} />
-              <Bar dataKey="count" fill="var(--info)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+              <Bar
+                dataKey="count"
+                name={t('squad.kpi.playerCount')}
+                fill="var(--info)"
+                radius={[4, 4, 0, 0]}
+                isAnimationActive={false}
+                label={{ position: 'top', fontSize: 11, fill: 'var(--text-muted)' }}
+              />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -392,7 +417,7 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
                         col.align === 'right' ? 'justify-end' : 'justify-start'
                       }`}
                     >
-                      <span>{col.label}</span>
+                      <ColTip label={col.label} tip={col.tip} align={col.align === 'right' ? 'right' : 'left'} />
                       {sort.key === col.key ? (
                         sort.dir === 'asc' ? (
                           <ArrowUp size={14} />
@@ -460,7 +485,7 @@ export function SquadDashboard({ data, playersData }: { data: SquadData; players
                           col.align === 'right' ? 'justify-end' : 'justify-start'
                         }`}
                       >
-                        <span>{col.label}</span>
+                        <ColTip label={col.label} tip={col.tip} align={col.align === 'right' ? 'right' : 'left'} />
                         {perfSort.key === col.key ? (
                           perfSort.dir === 'asc' ? (
                             <ArrowUp size={14} />

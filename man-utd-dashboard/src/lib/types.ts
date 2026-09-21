@@ -104,7 +104,7 @@ export interface KeeperMatchRow {
 
 export interface GkSeasonRow {
   season: string;
-  player: string;
+  player: string | null;
   nation: string | null;
   age: number | null;
   mp: number | null;

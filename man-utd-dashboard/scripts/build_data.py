@@ -260,10 +260,69 @@ def build_keepers():
     psxg = []
     psxg_per_gk = []
 
+    def add_match_row(season: str, r):
+        if len(r) < 19:
+            return
+        gfv, gfp = score(r[7])
+        gav, gap = score(r[8])
+        match_log.append({
+            "season": season,
+            "date": strip_md(r[0]) or None,
+            "time": strip_md(r[1]) or None,
+            "comp": canon_comp(r[2]),
+            "round": strip_md(r[3]) or None,
+            "venue": strip_md(r[5]) or None,
+            "result": strip_md(r[6]) or None,
+            "gf": gfv,
+            "ga": gav,
+            "gfPens": gfp,
+            "gaPens": gap,
+            "opponent": strip_md(r[9]) or None,
+            "sota": num(r[10]),
+            "saves": num(r[12]),
+            "savePct": num(r[13]),
+            "cs": num(r[14]),
+            "pkatt": num(r[15]),
+            "pka": num(r[16]),
+            "pksv": num(r[17]),
+            "pkm": num(r[18]),
+        })
+
+    def add_gk_row(season: str, r):
+        if len(r) < 23:
+            return
+        per_gk_season.append({
+            "season": season,
+            "player": strip_md(r[0]) or None,
+            "nation": strip_md(r[1]) or None,
+            "age": num(r[3]),
+            "mp": num(r[4]),
+            "starts": num(r[5]),
+            "min": num(r[6]),
+            "nineties": num(r[7]),
+            "ga": num(r[8]),
+            "ga90": num(r[9]),
+            "sota": num(r[10]),
+            "saves": num(r[11]),
+            "savePct": num(r[12]),
+            "w": num(r[13]),
+            "d": num(r[14]),
+            "l": num(r[15]),
+            "cs": num(r[16]),
+            "csPct": num(r[17]),
+            "pkatt": num(r[18]),
+            "pka": num(r[19]),
+            "pksv": num(r[20]),
+            "pkm": num(r[21]),
+            "pkSavePct": num(r[22]),
+        })
+
+    keeper_md_seasons = set()
     for p in sorted(RAW.glob("keeper-*.json")):
         if not re.match(r"^keeper-\d{4}-\d{4}$", p.stem):
             continue
         season = p.stem.replace("keeper-", "")
+        keeper_md_seasons.add(season)
         md = json.loads(p.read_text(encoding="utf-8"))["markdown"]
         for heading, header, rows in parse_tables(md):
             if not header or header[0] != "Date":
@@ -271,65 +330,79 @@ def build_keepers():
             for r in rows:
                 if len(r) < len(header):
                     continue
-                gfv, gfp = score(r[7])
-                gav, gap = score(r[8])
-                match_log.append({
-                    "season": season,
-                    "date": strip_md(r[0]) or None,
-                    "time": strip_md(r[1]) or None,
-                    "comp": canon_comp(r[2]),
-                    "round": strip_md(r[3]) or None,
-                    "venue": strip_md(r[5]) or None,
-                    "result": strip_md(r[6]) or None,
-                    "gf": gfv,
-                    "ga": gav,
-                    "gfPens": gfp,
-                    "gaPens": gap,
-                    "opponent": strip_md(r[9]) or None,
-                    "sota": num(r[10]),
-                    "saves": num(r[12]),
-                    "savePct": num(r[13]),
-                    "cs": num(r[14]),
-                    "pkatt": num(r[15]),
-                    "pka": num(r[16]),
-                    "pksv": num(r[17]),
-                    "pkm": num(r[18]),
-                })
+                add_match_row(season, r)
 
+    # Seasons only scraped via the structured matchlog pipeline
+    # (matchlog-YYYY-YYYY-keeper.json) — same fbref table, JSON not markdown.
+    for p in sorted(RAW.glob("matchlog-*-keeper.json")):
+        m = re.match(r"^matchlog-(\d{4}-\d{4})-keeper$", p.stem)
+        if not m or m.group(1) in keeper_md_seasons:
+            continue
+        season = m.group(1)
+        for t in json.loads(p.read_text(encoding="utf-8")).get("tables", []):
+            if t.get("label") != "For Manchester United":
+                continue
+            for r in t.get("rows", []):
+                add_match_row(season, r)
+
+    squad_md_seasons = set()
     for p in sorted(RAW.glob("keeper-squad-*.json")):
         season = p.stem.replace("keeper-squad-", "")
+        squad_md_seasons.add(season)
         md = json.loads(p.read_text(encoding="utf-8"))["markdown"]
         for heading, header, rows in parse_tables(md):
             if not header or header[0] != "Player":
                 continue
             for r in rows:
-                if len(r) < 23:
-                    continue
-                per_gk_season.append({
-                    "season": season,
-                    "player": strip_md(r[0]) or None,
-                    "nation": strip_md(r[1]) or None,
-                    "age": num(r[3]),
-                    "mp": num(r[4]),
-                    "starts": num(r[5]),
-                    "min": num(r[6]),
-                    "nineties": num(r[7]),
-                    "ga": num(r[8]),
-                    "ga90": num(r[9]),
-                    "sota": num(r[10]),
-                    "saves": num(r[11]),
-                    "savePct": num(r[12]),
-                    "w": num(r[13]),
-                    "d": num(r[14]),
-                    "l": num(r[15]),
-                    "cs": num(r[16]),
-                    "csPct": num(r[17]),
-                    "pkatt": num(r[18]),
-                    "pka": num(r[19]),
-                    "pksv": num(r[20]),
-                    "pkm": num(r[21]),
-                    "pkSavePct": num(r[22]),
-                })
+                add_gk_row(season, r)
+
+    # In-progress seasons may only exist via the squad-page player scrape —
+    # players-*.json carries the same stats_keeper_combined table.
+    for p in sorted(RAW.glob("players-*.json")):
+        m = re.match(r"^players-(\d{4}-\d{4})$", p.stem)
+        if not m:
+            continue
+        raw = json.loads(p.read_text(encoding="utf-8"))
+        season = raw.get("metadata", {}).get("season") or m.group(1)
+        if season in squad_md_seasons:
+            continue
+        for heading, header, rows in parse_tables(raw.get("markdown_keeper", "")):
+            if not header or header[0] != "Player":
+                continue
+            for r in rows:
+                add_gk_row(season, r)
+
+    # If the keeper matchlog covers matches no per-GK row accounts for
+    # (season in progress, season-scoped squad page not yet scraped), add a
+    # residual row so per-season totals still reconcile to real team totals.
+    ml_played = {}
+    for r in match_log:
+        if r["result"]:
+            ml_played.setdefault(r["season"], []).append(r)
+    gk_by_season = {}
+    for r in per_gk_season:
+        gk_by_season.setdefault(r["season"], []).append(r)
+    for season, rows in ml_played.items():
+        if season in squad_md_seasons:
+            continue
+        gk_rows = gk_by_season.get(season, [])
+        diff = len(rows) - sum(r["mp"] or 0 for r in gk_rows)
+        if diff <= 0:
+            continue
+        sota = sum(r["sota"] or 0 for r in rows) - sum(r["sota"] or 0 for r in gk_rows)
+        saves = sum(r["saves"] or 0 for r in rows) - sum(r["saves"] or 0 for r in gk_rows)
+        cs = sum(r["cs"] or 0 for r in rows) - sum(r["cs"] or 0 for r in gk_rows)
+        per_gk_season.append({
+            "season": season, "player": None, "nation": None, "age": None,
+            "mp": diff, "starts": None, "min": None, "nineties": None,
+            "ga": sum(r["ga"] or 0 for r in rows) - sum(r["ga"] or 0 for r in gk_rows),
+            "ga90": None, "sota": sota, "saves": saves,
+            "savePct": round(saves / sota * 100, 1) if sota else None,
+            "w": None, "d": None, "l": None, "cs": cs,
+            "csPct": round(cs / diff * 100, 1) if diff else None,
+            "pkatt": None, "pka": None, "pksv": None, "pkm": None,
+            "pkSavePct": None,
+        })
 
     for p in sorted(RAW.glob("keeperadv-*.json")):
         season = p.stem.replace("keeperadv-", "")

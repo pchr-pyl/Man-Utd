@@ -7,6 +7,7 @@ import type { SeasonRow, MatchRow, CompGroup } from '@/lib/types';
 import { winRate, csRate } from '@/lib/stats';
 import { fmt, pct, signed, dash } from '@/lib/format';
 import { SeasonModal } from './SeasonModal';
+import { ColTip } from './ColTip';
 
 type SortKey =
   | 'season' | 'competition' | 'mp' | 'w' | 'd' | 'l'
@@ -19,6 +20,7 @@ type SortDir = 'asc' | 'desc';
 interface Col {
   key: SortKey;
   label: string;
+  tip?: string;
   align?: 'left' | 'right';
   render?: (r: SeasonRow) => React.ReactNode;
   sortValue?: (r: SeasonRow) => number | string | null;
@@ -45,30 +47,30 @@ export function SeasonTable({
 
   const columns: Col[] = useMemo(() => {
     const base: Col[] = [
-      { key: 'season', label: t('table.season'), align: 'left', sortValue: text(r => r.season) },
+      { key: 'season', label: t('table.season'), tip: t('tip.season'), align: 'left', sortValue: text(r => r.season) },
     ];
     if (group === 'all') {
-      base.push({ key: 'competition', label: t('table.competition'), align: 'left', sortValue: text(r => r.competition) });
+      base.push({ key: 'competition', label: t('table.competition'), tip: t('tip.competition'), align: 'left', sortValue: text(r => r.competition) });
     }
     base.push(
-      { key: 'mp', label: t('table.mp'), align: 'right', sortValue: numeric(r => r.mp) },
-      { key: 'w', label: t('table.w'), align: 'right', sortValue: numeric(r => r.w) },
-      { key: 'd', label: t('table.d'), align: 'right', sortValue: numeric(r => r.d) },
-      { key: 'l', label: t('table.l'), align: 'right', sortValue: numeric(r => r.l) },
-      { key: 'gf', label: t('table.gf'), align: 'right', sortValue: numeric(r => r.gf) },
-      { key: 'ga', label: t('table.ga'), align: 'right', sortValue: numeric(r => r.ga) },
-      { key: 'gd', label: t('table.gd'), align: 'right', sortValue: numeric(r => r.gd) },
-      { key: 'pts', label: t('table.pts'), align: 'right', sortValue: numeric(r => r.pts) },
-      { key: 'ptsPerMp', label: t('table.ptsPerMp'), align: 'right', sortValue: numeric(r => r.ptsPerMp) },
-      { key: 'xg', label: t('table.xg'), align: 'right', sortValue: numeric(r => r.xg) },
-      { key: 'xga', label: t('table.xga'), align: 'right', sortValue: numeric(r => r.xga) },
-      { key: 'xgd', label: t('table.xgd'), align: 'right', sortValue: numeric(r => r.xgd) },
-      { key: 'cs', label: t('table.cs'), align: 'right', sortValue: numeric(r => r.cs) },
-      { key: 'winRate', label: t('table.winRate'), align: 'right', sortValue: numeric(r => winRate(r)), render: r => pct(winRate(r), 2) },
-      { key: 'csRate', label: t('table.csRate'), align: 'right', sortValue: numeric(r => csRate(r)), render: r => pct(csRate(r), 2) },
-      { key: 'topScorer', label: t('table.topScorer'), align: 'left', sortValue: text(r => r.topScorer), render: r => <span className="block truncate max-w-[140px]" title={r.topScorer ?? undefined}>{dash(r.topScorer)}</span> },
-      { key: 'goalkeeper', label: t('table.goalkeeper'), align: 'left', sortValue: text(r => r.goalkeeper), render: r => <span className="block truncate max-w-[140px]" title={r.goalkeeper ?? undefined}>{dash(r.goalkeeper)}</span> },
-      { key: 'notes', label: t('table.notes'), align: 'left', sortValue: text(r => r.notes), render: r => <span className="block truncate max-w-[160px]" title={r.notes ?? undefined}>{dash(r.notes)}</span> },
+      { key: 'mp', label: t('table.mp'), tip: t('tip.mp'), align: 'right', sortValue: numeric(r => r.mp) },
+      { key: 'w', label: t('table.w'), tip: t('tip.w'), align: 'right', sortValue: numeric(r => r.w) },
+      { key: 'd', label: t('table.d'), tip: t('tip.d'), align: 'right', sortValue: numeric(r => r.d) },
+      { key: 'l', label: t('table.l'), tip: t('tip.l'), align: 'right', sortValue: numeric(r => r.l) },
+      { key: 'gf', label: t('table.gf'), tip: t('tip.gf'), align: 'right', sortValue: numeric(r => r.gf) },
+      { key: 'ga', label: t('table.ga'), tip: t('tip.ga'), align: 'right', sortValue: numeric(r => r.ga) },
+      { key: 'gd', label: t('table.gd'), tip: t('tip.gd'), align: 'right', sortValue: numeric(r => r.gd) },
+      { key: 'pts', label: t('table.pts'), tip: t('tip.pts'), align: 'right', sortValue: numeric(r => r.pts) },
+      { key: 'ptsPerMp', label: t('table.ptsPerMp'), tip: t('tip.ptsPerMp'), align: 'right', sortValue: numeric(r => r.ptsPerMp) },
+      { key: 'xg', label: t('table.xg'), tip: t('tip.xg'), align: 'right', sortValue: numeric(r => r.xg) },
+      { key: 'xga', label: t('table.xga'), tip: t('tip.xga'), align: 'right', sortValue: numeric(r => r.xga) },
+      { key: 'xgd', label: t('table.xgd'), tip: t('tip.xgd'), align: 'right', sortValue: numeric(r => r.xgd) },
+      { key: 'cs', label: t('table.cs'), tip: t('tip.cs'), align: 'right', sortValue: numeric(r => r.cs) },
+      { key: 'winRate', label: t('table.winRate'), tip: t('tip.winRate'), align: 'right', sortValue: numeric(r => winRate(r)), render: r => pct(winRate(r), 2) },
+      { key: 'csRate', label: t('table.csRate'), tip: t('tip.csRate'), align: 'right', sortValue: numeric(r => csRate(r)), render: r => pct(csRate(r), 2) },
+      { key: 'topScorer', label: t('table.topScorer'), tip: t('tip.topScorer'), align: 'left', sortValue: text(r => r.topScorer), render: r => <span className="block truncate max-w-[140px]" title={r.topScorer ?? undefined}>{dash(r.topScorer)}</span> },
+      { key: 'goalkeeper', label: t('table.goalkeeper'), tip: t('tip.goalkeeper'), align: 'left', sortValue: text(r => r.goalkeeper), render: r => <span className="block truncate max-w-[140px]" title={r.goalkeeper ?? undefined}>{dash(r.goalkeeper)}</span> },
+      { key: 'notes', label: t('table.notes'), tip: t('tip.notes'), align: 'left', sortValue: text(r => r.notes), render: r => <span className="block truncate max-w-[160px]" title={r.notes ?? undefined}>{dash(r.notes)}</span> },
     );
     return base;
   }, [t, group]);
@@ -130,7 +132,7 @@ export function SeasonTable({
                 className={`cursor-pointer border-b border-border px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted transition-colors hover:bg-bg-secondary ${col.align === 'left' ? 'text-left' : 'text-right'}`}
               >
                 <div className={`flex items-center gap-1 ${col.align === 'right' ? 'justify-end' : 'justify-start'}`}>
-                  <span>{col.label}</span>
+                  <ColTip label={col.label} tip={col.tip} align={col.align === 'right' ? 'right' : 'left'} />
                   {sort.key === col.key ? (sort.dir === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} className="opacity-30" />}
                 </div>
               </th>

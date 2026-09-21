@@ -1,8 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -14,14 +13,12 @@ import {
   CartesianGrid,
   Tooltip,
   TooltipContentProps,
+  Legend,
 } from 'recharts';
 import { useI18n } from '@/i18n/I18nContext';
 import type { KeepersData, GkSeasonRow } from '@/lib/types';
 import { seasonShort } from '@/lib/stats';
-import { fmt, pct, signed, dash } from '@/lib/format';
-
-type SortKey = 'season' | 'player' | 'mp' | 'ga' | 'sota' | 'saves' | 'savePct' | 'cs';
-type SortDir = 'asc' | 'desc';
+import { fmt, pct, signed } from '@/lib/format';
 
 function sum(values: (number | null | undefined)[]): number {
   return values.reduce((acc: number, v) => acc + (v ?? 0), 0);
@@ -30,7 +27,6 @@ function sum(values: (number | null | undefined)[]): number {
 export function KeepersDashboard({ data }: { data: KeepersData }) {
   const { t } = useI18n();
   const { matchLog, perGkSeason, psxg } = data;
-  const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'season', dir: 'desc' });
 
   const plBySeason = useMemo(() => {
     const groups = new Map<string, (typeof matchLog)[number][]>();
@@ -62,7 +58,7 @@ export function KeepersDashboard({ data }: { data: KeepersData }) {
   }, [psxg]);
 
   const perGk = useMemo(() => {
-    const groups = new Map<string, GkSeasonRow[]>();
+    const groups = new Map<string | null, GkSeasonRow[]>();
     for (const r of perGkSeason) {
       const arr = groups.get(r.player) ?? [];
       arr.push(r);
@@ -75,11 +71,11 @@ export function KeepersDashboard({ data }: { data: KeepersData }) {
       const cs = sum(rows.map((r) => r.cs));
       const mp = sum(rows.map((r) => r.mp));
       const savePct = sota > 0 ? saves / sota : null;
-      return { player, mp, sota, saves, ga, cs, savePct };
+      return { player: player ?? t('keepers.table.otherGk'), mp, sota, saves, ga, cs, savePct };
     });
     out.sort((a, b) => b.sota - a.sota);
     return out;
-  }, [perGkSeason]);
+  }, [perGkSeason, t]);
 
   const goalsPrevented = useMemo(() => {
     return [...psxg]
@@ -93,49 +89,6 @@ export function KeepersDashboard({ data }: { data: KeepersData }) {
         psxgPlusMinus: r.psxgPlusMinus,
       }));
   }, [psxg]);
-
-  const getSortValue = (row: GkSeasonRow, key: SortKey) => {
-    switch (key) {
-      case 'season':
-        return row.season;
-      case 'player':
-        return row.player;
-      case 'mp':
-        return row.mp ?? -Infinity;
-      case 'ga':
-        return row.ga ?? -Infinity;
-      case 'sota':
-        return row.sota ?? -Infinity;
-      case 'saves':
-        return row.saves ?? -Infinity;
-      case 'savePct':
-        return row.savePct ?? -Infinity;
-      case 'cs':
-        return row.cs ?? -Infinity;
-      default:
-        return '';
-    }
-  };
-
-  const sortedRows = useMemo(() => {
-    const copy = [...perGkSeason];
-    copy.sort((a, b) => {
-      const aVal = getSortValue(a, sort.key);
-      const bVal = getSortValue(b, sort.key);
-      let cmp = 0;
-      if (typeof aVal === 'number' && typeof bVal === 'number') {
-        cmp = aVal - bVal;
-      } else {
-        cmp = String(aVal).localeCompare(String(bVal));
-      }
-      return sort.dir === 'asc' ? cmp : -cmp;
-    });
-    return copy;
-  }, [perGkSeason, sort]);
-
-  const toggleSort = (key: SortKey) => {
-    setSort((prev) => ({ key, dir: prev.key === key && prev.dir === 'asc' ? 'desc' : 'asc' }));
-  };
 
   const axisTick = { fill: 'var(--text-muted)', fontSize: 11 };
   const gridStroke = 'var(--border)';
@@ -207,19 +160,8 @@ export function KeepersDashboard({ data }: { data: KeepersData }) {
     },
   ];
 
-  const columns: { key: SortKey; label: string; align: 'left' | 'right' }[] = [
-    { key: 'season', label: t('keepers.table.season'), align: 'left' },
-    { key: 'player', label: t('keepers.table.player'), align: 'left' },
-    { key: 'mp', label: t('keepers.table.mp'), align: 'right' },
-    { key: 'ga', label: t('keepers.table.ga'), align: 'right' },
-    { key: 'sota', label: t('keepers.table.sota'), align: 'right' },
-    { key: 'saves', label: t('keepers.table.saves'), align: 'right' },
-    { key: 'savePct', label: t('keepers.table.savePct'), align: 'right' },
-    { key: 'cs', label: t('keepers.table.cs'), align: 'right' },
-  ];
-
   return (
-    <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-8 px-6 py-8 lg:px-10">
+    <div className="flex min-w-0 flex-col gap-8">
       <section className="flex min-w-0 flex-col gap-4">
         <h2 className="font-display text-xl font-semibold text-primary">{t('keepers.title')}</h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -248,6 +190,7 @@ export function KeepersDashboard({ data }: { data: KeepersData }) {
               />
               <YAxis tick={axisTick} axisLine={false} tickLine={false} width={32} />
               <Tooltip content={ChartTooltip} />
+              <Legend formatter={(value) => chartLabel(String(value))} wrapperStyle={{ fontSize: 12 }} />
               <Area
                 type="monotone"
                 dataKey="sota"
@@ -305,6 +248,7 @@ export function KeepersDashboard({ data }: { data: KeepersData }) {
                 tickFormatter={(v: number) => pct(v, 0)}
               />
               <Tooltip content={ChartTooltip} />
+              <Legend formatter={(value) => chartLabel(String(value))} wrapperStyle={{ fontSize: 12 }} />
               <Bar
                 dataKey="sota"
                 name="sota"
@@ -354,6 +298,7 @@ export function KeepersDashboard({ data }: { data: KeepersData }) {
                 width={44}
               />
               <Tooltip content={ChartTooltip} />
+              <Legend formatter={(value) => chartLabel(String(value))} wrapperStyle={{ fontSize: 12 }} />
               <Bar
                 dataKey="ga"
                 name="ga"
@@ -383,65 +328,7 @@ export function KeepersDashboard({ data }: { data: KeepersData }) {
         </ChartCard>
       </section>
 
-      <section className="min-w-0 overflow-hidden rounded-2xl border border-border bg-surface shadow-sm dark:shadow-none">
-        <div className="border-b border-border px-4 py-3">
-          <h3 className="font-display text-lg font-semibold text-primary">{t('keepers.table.title')}</h3>
-        </div>
-        <div className="max-h-[70vh] overflow-auto">
-          <table className="w-full min-w-[900px] border-collapse">
-            <thead className="sticky top-0 z-10 bg-surface-elevated">
-              <tr>
-                {columns.map((col) => (
-                  <th
-                    key={col.key}
-                    onClick={() => toggleSort(col.key)}
-                    className={`cursor-pointer border-b border-border px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted transition-colors hover:bg-bg-secondary ${
-                      col.align === 'left' ? 'text-left' : 'text-right'
-                    }`}
-                  >
-                    <div
-                      className={`flex items-center gap-1 ${
-                        col.align === 'right' ? 'justify-end' : 'justify-start'
-                      }`}
-                    >
-                      <span>{col.label}</span>
-                      {sort.key === col.key ? (
-                        sort.dir === 'asc' ? (
-                          <ArrowUp size={14} />
-                        ) : (
-                          <ArrowDown size={14} />
-                        )
-                      ) : (
-                        <ArrowUpDown size={14} className="opacity-30" />
-                      )}
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {sortedRows.map((row, idx) => (
-                <tr
-                  key={`${row.season}-${row.player}-${idx}`}
-                  className="border-b border-border transition-colors hover:bg-bg-secondary"
-                >
-                  <td className="px-3 py-3 text-sm text-primary">{row.season}</td>
-                  <td className="px-3 py-3 text-sm text-primary">{dash(row.player)}</td>
-                  <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(row.mp, 0)}</td>
-                  <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(row.ga, 0)}</td>
-                  <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(row.sota, 0)}</td>
-                  <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(row.saves, 0)}</td>
-                  <td className="px-3 py-3 text-right text-sm text-secondary">
-                    {row.savePct != null ? pct(row.savePct / 100, 2) : '—'}
-                  </td>
-                  <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(row.cs, 0)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </main>
+    </div>
   );
 }
 

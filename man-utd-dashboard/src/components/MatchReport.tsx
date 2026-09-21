@@ -168,7 +168,7 @@ export function MatchReport({
     <main className="mx-auto flex w-full max-w-[960px] flex-col gap-4 px-4 py-6 sm:px-6 lg:px-10">
       <div className="flex items-center justify-between gap-2">
         <Link
-          href="/matches"
+          href="/matches?view=scores"
           className="inline-flex items-center gap-1 text-sm font-medium text-muted transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
         >
           <ChevronLeft size={16} />

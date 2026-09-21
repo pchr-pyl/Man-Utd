@@ -5,6 +5,48 @@ import { useI18n } from '@/i18n/I18nContext';
 import type { MatchRow, CompGroup, MatchlogTable, SeasonMatchlogs } from '@/lib/types';
 import { compInGroup, canonicalComp } from '@/lib/stats';
 import { fmt, dash } from '@/lib/format';
+import { ColTip } from './ColTip';
+
+const COL_TIP: Record<string, string> = {
+  Date: 'date',
+  Time: 'time',
+  Comp: 'competition',
+  Round: 'round',
+  Day: 'day',
+  Venue: 'venue',
+  Result: 'result',
+  Opponent: 'opponent',
+  'Match Report': 'matchReport',
+  GF: 'gf',
+  GA: 'ga',
+  Gls: 'gls',
+  Sh: 'sh',
+  SoT: 'sot',
+  'SoT%': 'sotPct',
+  'G/Sh': 'gPerSh',
+  'G/SoT': 'gPerSot',
+  PK: 'pk',
+  PKatt: 'pkatt',
+  SoTA: 'sota',
+  Saves: 'saves',
+  'Save%': 'savePct',
+  CS: 'cs',
+  PKA: 'pkAllowed',
+  PKsv: 'pkSaved',
+  PKm: 'pkMissed',
+  CrdY: 'crdY',
+  CrdR: 'crdR',
+  '2CrdY': 'secondYellow',
+  Fls: 'fls',
+  Fld: 'fld',
+  Off: 'off',
+  Crs: 'crs',
+  Int: 'int',
+  TklW: 'tklW',
+  OG: 'og',
+  PKwon: 'pkWon',
+  PKcon: 'pkCon',
+};
 
 export const COMP_SHORT: Record<string, string> = {
   'Premier League': 'PL',
@@ -109,7 +151,11 @@ export function StatTable({ table, group }: { table: MatchlogTable; group: CompG
                   i > oppIdx ? 'text-right' : 'text-left'
                 }`}
               >
-                {c}
+                <ColTip
+                  label={c}
+                  tip={COL_TIP[c] ? t(`tip.${COL_TIP[c]}`) : undefined}
+                  align={i > oppIdx ? 'right' : 'left'}
+                />
               </th>
             ))}
           </tr>

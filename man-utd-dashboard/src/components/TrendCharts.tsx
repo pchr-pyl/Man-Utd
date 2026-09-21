@@ -12,6 +12,7 @@ import {
   Tooltip,
   TooltipContentProps,
   LineChart,
+  Legend,
   ReferenceLine,
 } from 'recharts';
 import { useI18n } from '@/i18n/I18nContext';
@@ -120,6 +121,7 @@ export function TrendCharts({ rows }: { rows: SeasonRow[] }) {
             <XAxis dataKey="short" tick={axisTick} axisLine={{ stroke: gridStroke }} tickLine={false} />
             <YAxis tick={axisTick} axisLine={false} tickLine={false} width={32} />
             <Tooltip content={ChartTooltip} />
+            <Legend formatter={(value) => chartLabel(String(value))} wrapperStyle={{ fontSize: 12 }} />
             <Bar dataKey="gfPerMp" fill="var(--brand)" radius={[4, 4, 0, 0]} name="gfPerMp" isAnimationActive={false} />
             <Line
               type="monotone"
@@ -142,6 +144,7 @@ export function TrendCharts({ rows }: { rows: SeasonRow[] }) {
             <XAxis dataKey="short" tick={axisTick} axisLine={{ stroke: gridStroke }} tickLine={false} />
             <YAxis tick={axisTick} axisLine={false} tickLine={false} width={32} />
             <Tooltip content={ChartTooltip} />
+            <Legend formatter={(value) => chartLabel(String(value))} wrapperStyle={{ fontSize: 12 }} />
             <Bar dataKey="gaPerMp" fill="var(--danger)" radius={[4, 4, 0, 0]} name="gaPerMp" isAnimationActive={false} />
             <Line
               type="monotone"
@@ -164,6 +167,7 @@ export function TrendCharts({ rows }: { rows: SeasonRow[] }) {
             <XAxis dataKey="short" tick={axisTick} axisLine={{ stroke: gridStroke }} tickLine={false} />
             <YAxis tick={axisTick} axisLine={false} tickLine={false} width={32} domain={[0, 'auto']} />
             <Tooltip content={ChartTooltip} />
+            <Legend formatter={(value) => chartLabel(String(value))} wrapperStyle={{ fontSize: 12 }} />
             <ReferenceLine y={2.0} stroke="var(--text-muted)" strokeDasharray="4 4" label={t('charts.refLine')} />
             <Line
               type="monotone"
@@ -193,6 +197,7 @@ export function TrendCharts({ rows }: { rows: SeasonRow[] }) {
               tickFormatter={(v: number) => pct(v, 0)}
             />
             <Tooltip content={ChartTooltip} />
+            <Legend formatter={(value) => chartLabel(String(value))} wrapperStyle={{ fontSize: 12 }} />
             <Line
               type="monotone"
               dataKey="winRate"

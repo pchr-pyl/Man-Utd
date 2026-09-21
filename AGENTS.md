@@ -16,6 +16,10 @@ User says "อัพเดต man utd csv" or "refresh fbref" → re-scrape chan
 re-run `python -X utf8 scripts/build_data.py` in `man-utd-dashboard/`, then copy
 `data/man-utd-seasons.{csv,json}` to this folder.
 
+IMPORTANT: when `DATABASE_URL` is set (.env.local / Vercel), pages read from the
+Neon DB, NOT the JSON files — after rebuild also run `npm run db:seed` in
+`man-utd-dashboard/man-utd-dashboard/` or the site keeps showing stale data.
+
 ## Re-scraping matchlogs (fbref blocks bots — Cloudflare 403)
 - Raw HTTP/XHR fetch fails even inside an fbref page context. Must use Playwright
   `browser_navigate` per URL, wait ~8s if "Just a moment..." challenge, then

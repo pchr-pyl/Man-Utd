@@ -9,11 +9,9 @@ import { useTheme } from './ThemeProvider';
 const NAV = [
   { href: '/', key: 'overview' },
   { href: '/matches', key: 'matches' },
-  { href: '/lastmatch', key: 'lastmatch' },
-  { href: '/shooting', key: 'shooting' },
-  { href: '/keepers', key: 'keepers' },
   { href: '/misc', key: 'misc' },
   { href: '/attack', key: 'attack' },
+  { href: '/defense', key: 'defense' },
   { href: '/squad', key: 'squad' },
   { href: '/managers', key: 'managers' },
   { href: '/compare', key: 'compare' },

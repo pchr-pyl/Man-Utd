@@ -165,6 +165,12 @@ function XgFlowChart({
             axisLine={false}
             tickLine={false}
             tickFormatter={(v: number) => v.toFixed(1)}
+            label={{
+              value: 'xG',
+              position: 'insideTopLeft',
+              offset: 8,
+              style: { fontSize: 10, fill: 'var(--text-muted)' },
+            }}
           />
           <Tooltip content={Tip} />
           <Line
