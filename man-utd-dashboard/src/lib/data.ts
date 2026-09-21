@@ -199,6 +199,11 @@ export const getAttack = cache(async (): Promise<AttackBySeason> => {
   return readJson<AttackBySeason>(ATTACK_PATH, {});
 });
 
+export const getAttackLeague = cache(async (): Promise<AttackBySeason> => {
+  if (hasDatabase()) return await queryDataset<AttackBySeason>('attack-league') ?? {};
+  return readJson<AttackBySeason>(join(DATA_DIR, 'man-utd-attack-league.json'), {});
+});
+
 export const getMatchlogs = cache(async (season: string): Promise<SeasonMatchlogs> => {
   const key = `matchlogs-${season}`;
   if (hasDatabase()) return await queryDataset<SeasonMatchlogs>(key) ?? {};

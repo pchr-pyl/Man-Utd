@@ -24,6 +24,9 @@ from pathlib import Path
 RAW = Path(__file__).resolve().parent.parent / "data" / "raw"
 OUT = Path(__file__).resolve().parent.parent / "data" / "man-utd-matchlogs.json"
 ATTACK_OUT = Path(__file__).resolve().parent.parent / "data" / "man-utd-attack.json"
+ATTACK_LEAGUE_OUT = (
+    Path(__file__).resolve().parent.parent / "data" / "man-utd-attack-league.json"
+)
 PUBLIC_DIR = Path(__file__).resolve().parent.parent / "public" / "data"
 
 FILE_RE = re.compile(r"matchlog-(\d{4}-\d{4})-(shooting|keeper|misc)\.json")
@@ -73,6 +76,13 @@ def main():
     )
     print(f"wrote attack aggregates -> {ATTACK_OUT}")
 
+    attack_league = build_attack(seasons, comp="Premier League")
+    ATTACK_LEAGUE_OUT.write_text(
+        json.dumps(attack_league, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    print(f"wrote league-only attack aggregates -> {ATTACK_LEAGUE_OUT}")
+
 
 def num(s):
     try:
@@ -81,8 +91,11 @@ def num(s):
         return None
 
 
-def build_attack(seasons):
-    """Per-season attacking aggregates from the shooting 'for' tables."""
+def build_attack(seasons, comp=None):
+    """Per-season attacking aggregates from the shooting 'for' tables.
+
+    comp: when set, only rows whose Comp column matches are counted.
+    """
     out = {}
     for season, types in seasons.items():
         t = types.get("shooting", {}).get("for")
@@ -91,12 +104,20 @@ def build_attack(seasons):
         ix = {}
         for i, c in enumerate(t["columns"]):
             ix.setdefault(c, i)  # first occurrence wins (dup headers like GA)
-        mp = len(t["rows"])
+        rows = t["rows"]
+        if comp is not None:
+            ci = ix.get("Comp")
+            if ci is None:
+                continue
+            rows = [r for r in rows if ci < len(r) and r[ci] == comp]
+        if not rows:
+            continue
+        mp = len(rows)
 
         def col(name):
             i = ix.get(name)
             return [num(r[i]) if i is not None and i < len(r) else None
-                    for r in t["rows"]]
+                    for r in rows]
 
         def s(vals):
             vals = [v for v in vals if v is not None]

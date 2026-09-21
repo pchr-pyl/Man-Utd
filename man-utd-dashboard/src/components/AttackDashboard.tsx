@@ -22,6 +22,7 @@ import { fmt, pct, dash } from '@/lib/format';
 type SortKey =
   | 'season' | 'mp' | 'gls' | 'gfPerMp' | 'xg' | 'sh' | 'sot'
   | 'sotPct' | 'gPerSh' | 'pk' | 'pkatt' | 'topScorer';
+type DefSortKey = 'season' | 'mp' | 'ga' | 'gaPerMp' | 'xga' | 'sota' | 'cs' | 'csPct';
 type SortDir = 'asc' | 'desc';
 
 interface Row {
@@ -42,27 +43,43 @@ interface Row {
   topScorer: string | null;
 }
 
+interface DefRow {
+  season: string;
+  mp: number | null;
+  ga: number | null;
+  gaPerMp: number | null;
+  xga: number | null;
+  sota: number | null;
+  cs: number | null;
+  csPct: number | null;
+}
+
 export function AttackDashboard({
   rows,
   attack,
+  attackLeague,
 }: {
   rows: SeasonRow[];
   attack: AttackBySeason;
+  attackLeague: AttackBySeason;
 }) {
   const { t } = useI18n();
+  const [leagueOnly, setLeagueOnly] = useState(false);
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: 'season', dir: 'desc' });
+  const [defSort, setDefSort] = useState<{ key: DefSortKey; dir: SortDir }>({ key: 'season', dir: 'desc' });
 
   const data = useMemo<Row[]>(() => {
+    const scoped = leagueOnly ? attackLeague : attack;
     const allComp = new Map<string, SeasonRow>();
     const pl = new Map<string, SeasonRow>();
     for (const r of rows) {
       if (r.competition === 'All Competitions') allComp.set(r.season, r);
       if (r.competition === 'Premier League') pl.set(r.season, r);
     }
-    return Object.keys(attack)
+    return Object.keys(scoped)
       .sort()
       .map((season) => {
-        const a = attack[season];
+        const a = scoped[season];
         const all = allComp.get(season);
         const plRow = pl.get(season);
         const mp = a.mp || null;
@@ -82,10 +99,10 @@ export function AttackDashboard({
           gPerSh: covered && a.gls != null && a.sh ? a.gls / a.sh : null,
           pk: a.pk,
           pkatt: a.pkatt,
-          topScorer: all?.topScorer ?? null,
+          topScorer: (leagueOnly ? plRow : all)?.topScorer ?? null,
         };
       });
-  }, [attack, rows]);
+  }, [attack, attackLeague, rows, leagueOnly]);
 
   const sorted = useMemo(() => {
     const val = (r: Row): number | string | null => {
@@ -110,6 +127,65 @@ export function AttackDashboard({
 
   const toggleSort = (key: SortKey) =>
     setSort((prev) => ({ key, dir: prev.key === key && prev.dir === 'asc' ? 'desc' : 'asc' }));
+
+  const defData = useMemo<DefRow[]>(() => {
+    const allComp = new Map<string, SeasonRow>();
+    const pl = new Map<string, SeasonRow>();
+    for (const r of rows) {
+      if (r.competition === 'All Competitions') allComp.set(r.season, r);
+      if (r.competition === 'Premier League') pl.set(r.season, r);
+    }
+    const scoped = leagueOnly ? attackLeague : attack;
+    return Object.keys(scoped)
+      .sort()
+      .map((season) => {
+        const plRow = pl.get(season);
+        const src = leagueOnly ? plRow : allComp.get(season);
+        const mp = src?.mp ?? null;
+        const ga = src?.ga ?? null;
+        const cs = src?.cs ?? null;
+        return {
+          season,
+          mp,
+          ga,
+          gaPerMp: ga != null && mp ? ga / mp : null,
+          xga: plRow?.xga ?? null,
+          sota: plRow?.sota ?? null,
+          cs,
+          csPct: cs != null && mp ? cs / mp : null,
+        };
+      });
+  }, [attack, attackLeague, rows, leagueOnly]);
+
+  const defSorted = useMemo(() => {
+    const copy = [...defData];
+    copy.sort((a, b) => {
+      const av = defSort.key === 'season' ? a.season : a[defSort.key];
+      const bv = defSort.key === 'season' ? b.season : b[defSort.key];
+      const an = av == null ? (defSort.key === 'season' ? '' : -Infinity) : av;
+      const bn = bv == null ? (defSort.key === 'season' ? '' : -Infinity) : bv;
+      const cmp =
+        typeof an === 'number' && typeof bn === 'number'
+          ? an - bn
+          : String(an).localeCompare(String(bn));
+      return defSort.dir === 'asc' ? cmp : -cmp;
+    });
+    return copy;
+  }, [defData, defSort]);
+
+  const toggleDefSort = (key: DefSortKey) =>
+    setDefSort((prev) => ({ key, dir: prev.key === key && prev.dir === 'asc' ? 'desc' : 'asc' }));
+
+  const defColumns: { key: DefSortKey; label: string }[] = [
+    { key: 'season', label: t('attack.table.season') },
+    { key: 'mp', label: 'MP' },
+    { key: 'ga', label: 'GA' },
+    { key: 'gaPerMp', label: 'GA/MP' },
+    { key: 'xga', label: 'xGA' },
+    { key: 'sota', label: 'SoTA' },
+    { key: 'cs', label: 'CS' },
+    { key: 'csPct', label: 'CS%' },
+  ];
 
   const axisTick = { fill: 'var(--text-muted)', fontSize: 11 };
   const gridStroke = 'var(--border)';
@@ -169,7 +245,30 @@ export function AttackDashboard({
   return (
     <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-8 px-6 py-8 lg:px-10">
       <section className="flex min-w-0 flex-col gap-4">
-        <h2 className="font-display text-xl font-semibold text-primary">{t('attack.title')}</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-display text-xl font-semibold text-primary">{t('attack.title')}</h2>
+          <div
+            role="group"
+            aria-label={t('managers.scope')}
+            className="inline-flex rounded-full border border-border bg-surface p-0.5"
+          >
+            {([false, true] as const).map((v) => (
+              <button
+                key={String(v)}
+                type="button"
+                onClick={() => setLeagueOnly(v)}
+                aria-pressed={leagueOnly === v}
+                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand ${
+                  leagueOnly === v
+                    ? 'bg-brand-soft text-brand'
+                    : 'text-secondary hover:text-primary'
+                }`}
+              >
+                {v ? t('managers.scopeLeague') : t('managers.scopeAll')}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {kpi.map((k) => (
             <div
@@ -296,6 +395,47 @@ export function AttackDashboard({
                   <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.pk, 0)}</td>
                   <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.pkatt, 0)}</td>
                   <td className="px-3 py-3 text-sm text-secondary"><span className="block max-w-[160px] truncate" title={r.topScorer ?? undefined}>{dash(r.topScorer)}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="min-w-0 overflow-hidden rounded-2xl border border-border bg-surface shadow-sm dark:shadow-none">
+        <div className="border-b border-border px-4 py-3">
+          <h3 className="font-display text-lg font-semibold text-primary">{t('attack.table.defTitle')}</h3>
+          <p className="mt-1 text-xs text-muted">{t('attack.table.defNote')}</p>
+        </div>
+        <div className="max-h-[70vh] overflow-auto">
+          <table className="w-full min-w-[760px] border-collapse">
+            <thead className="sticky top-0 z-10 bg-surface-elevated">
+              <tr className="divide-x divide-border-light">
+                {defColumns.map((col) => (
+                  <th
+                    key={col.key}
+                    onClick={() => toggleDefSort(col.key)}
+                    className={`cursor-pointer border-b border-border px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted transition-colors hover:bg-bg-secondary ${col.key === 'season' ? 'text-left' : 'text-right'}`}
+                  >
+                    <div className={`flex items-center gap-1 ${col.key === 'season' ? 'justify-start' : 'justify-end'}`}>
+                      <span>{col.label}</span>
+                      {defSort.key === col.key ? (defSort.dir === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} className="opacity-30" />}
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {defSorted.map((r) => (
+                <tr key={r.season} className="divide-x divide-border-light border-b border-border transition-colors hover:bg-bg-secondary">
+                  <td className="px-3 py-3 text-sm font-medium text-primary">{r.season}</td>
+                  <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.mp, 0)}</td>
+                  <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.ga, 0)}</td>
+                  <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.gaPerMp, 2)}</td>
+                  <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.xga, 2)}</td>
+                  <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.sota, 0)}</td>
+                  <td className="px-3 py-3 text-right text-sm text-secondary">{fmt(r.cs, 0)}</td>
+                  <td className="px-3 py-3 text-right text-sm text-secondary">{r.csPct != null ? pct(r.csPct, 1) : '—'}</td>
                 </tr>
               ))}
             </tbody>

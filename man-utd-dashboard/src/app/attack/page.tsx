@@ -1,12 +1,16 @@
 import { connection } from 'next/server';
-import { getSeasonRows, getAttack } from '@/lib/data';
+import { getSeasonRows, getAttack, getAttackLeague } from '@/lib/data';
 import { seasonShort } from '@/lib/stats';
 import { AppHeader } from '@/components/AppHeader';
 import { AttackDashboard } from '@/components/AttackDashboard';
 
 export default async function AttackPage() {
   await connection();
-  const [rows, attack] = await Promise.all([getSeasonRows(), getAttack()]);
+  const [rows, attack, attackLeague] = await Promise.all([
+    getSeasonRows(),
+    getAttack(),
+    getAttackLeague(),
+  ]);
   const allRows = rows.filter((r) => r.competition === 'All Competitions');
   const sorted = [...allRows].sort((a, b) => a.season.localeCompare(b.season));
   const first = sorted[0]?.season ?? '';
@@ -16,7 +20,7 @@ export default async function AttackPage() {
   return (
     <div className="hero-glow relative flex min-h-screen flex-col bg-bg">
       <AppHeader seasonRange={seasonRange} />
-      <AttackDashboard rows={rows} attack={attack} />
+      <AttackDashboard rows={rows} attack={attack} attackLeague={attackLeague} />
     </div>
   );
 }
