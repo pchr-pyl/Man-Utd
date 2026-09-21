@@ -9,6 +9,7 @@ import { useTheme } from './ThemeProvider';
 const NAV = [
   { href: '/', key: 'overview' },
   { href: '/matches', key: 'matches' },
+  { href: '/lastmatch', key: 'lastmatch' },
   { href: '/shooting', key: 'shooting' },
   { href: '/keepers', key: 'keepers' },
   { href: '/misc', key: 'misc' },
@@ -26,7 +27,8 @@ export function AppHeader({ seasonRange }: { seasonRange?: string }) {
   const isActive = (href: string) => {
     const norm = (pathname ?? '').replace(/\/$/, '') || '/';
     const target = href.replace(/\/$/, '') || '/';
-    return norm === target;
+    if (norm === target) return true;
+    return target !== '/' && norm.startsWith(`${target}/`);
   };
 
   return (

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useI18n } from '@/i18n/I18nContext';
 import type { MatchRow, CompGroup, MatchlogTable, SeasonMatchlogs } from '@/lib/types';
 import { compInGroup, canonicalComp } from '@/lib/stats';
@@ -191,35 +192,40 @@ export function ScoresList({ rows, showComp }: { rows: MatchRow[]; showComp: boo
         ].filter(Boolean);
 
         return (
-          <li key={`${m.date}-${i}`} className="px-4 py-2.5 transition-colors hover:bg-bg-secondary">
-            <div className="flex items-center gap-3">
-              <span className="w-16 shrink-0 text-xs tabular-nums text-muted">
-                {formatDate(m.date)}
-              </span>
-              {showComp && (
-                <span className="w-10 shrink-0 rounded bg-bg-secondary px-1 py-0.5 text-center text-[10px] font-semibold text-muted">
-                  {COMP_SHORT[m.competition] ?? m.competition}
+          <li key={`${m.date}-${i}`}>
+            <Link
+              href={`/matches/${m.date}`}
+              className="block px-4 py-2.5 transition-colors hover:bg-bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
+            >
+              <div className="flex items-center gap-3">
+                <span className="w-16 shrink-0 text-xs tabular-nums text-muted">
+                  {formatDate(m.date)}
                 </span>
-              )}
-              <span
-                className={`w-7 shrink-0 rounded px-1 py-0.5 text-center text-xs font-bold ${
-                  RESULT_STYLE[m.result ?? ''] ?? 'bg-bg-secondary text-muted'
-                }`}
-              >
-                {m.result ?? '—'}
-              </span>
-              <span className="min-w-0 flex-1 truncate text-sm font-medium text-primary">
-                {dash(m.opponent)}
-              </span>
-              <span className="shrink-0 font-display text-sm font-semibold tabular-nums text-primary">
-                {scoreText(m)}
-              </span>
-            </div>
-            {meta.length > 0 && (
-              <div className="mt-1 truncate pl-16 text-xs text-muted sm:pl-[7.5rem]">
-                {meta.join(' · ')}
+                {showComp && (
+                  <span className="w-10 shrink-0 rounded bg-bg-secondary px-1 py-0.5 text-center text-[10px] font-semibold text-muted">
+                    {COMP_SHORT[m.competition] ?? m.competition}
+                  </span>
+                )}
+                <span
+                  className={`w-7 shrink-0 rounded px-1 py-0.5 text-center text-xs font-bold ${
+                    RESULT_STYLE[m.result ?? ''] ?? 'bg-bg-secondary text-muted'
+                  }`}
+                >
+                  {m.result ?? '—'}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-sm font-medium text-primary">
+                  {dash(m.opponent)}
+                </span>
+                <span className="shrink-0 font-display text-sm font-semibold tabular-nums text-primary">
+                  {scoreText(m)}
+                </span>
               </div>
-            )}
+              {meta.length > 0 && (
+                <div className="mt-1 truncate pl-16 text-xs text-muted sm:pl-[7.5rem]">
+                  {meta.join(' · ')}
+                </div>
+              )}
+            </Link>
           </li>
         );
       })}

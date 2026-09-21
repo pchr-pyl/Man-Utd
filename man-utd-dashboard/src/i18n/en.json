@@ -103,6 +103,42 @@
       "Neutral": "Neutral"
     }
   },
+  "match": {
+    "back": "All matches",
+    "next": "Next match",
+    "fullTime": "Full time",
+    "scheduled": "Scheduled",
+    "home": "Home",
+    "away": "Away",
+    "overview": "Match overview",
+    "legend": "Man Utd vs opponent",
+    "noStats": "No detailed stats available for this match",
+    "details": "Match details",
+    "round": "Round",
+    "venue": "Venue",
+    "referee": "Referee",
+    "attendance": "Attendance",
+    "captain": "Captain",
+    "formation": "Formation",
+    "oppFormation": "Opp. formation",
+    "notes": "Notes",
+    "stat": {
+      "xg": "Expected goals (xG)",
+      "poss": "Possession",
+      "sh": "Total shots",
+      "sot": "Shots on target",
+      "sotPct": "On-target %",
+      "saves": "Saves",
+      "fls": "Fouls",
+      "crdY": "Yellow cards",
+      "crdR": "Red cards",
+      "off": "Offsides",
+      "crs": "Crosses",
+      "int": "Interceptions",
+      "tklW": "Tackles won",
+      "pkWon": "Penalties won"
+    }
+  },
   "dataNote": "Data: fbref.com · xG from Understat (Premier League only, from 2014/15)",
   "lang": {
     "th": "ไทย",
@@ -118,6 +154,7 @@
   "nav": {
     "overview": "Overview",
     "matches": "Scores & Fixtures",
+    "lastmatch": "Last Match",
     "shooting": "Shooting",
     "keepers": "Keepers",
     "misc": "Miscellaneous",

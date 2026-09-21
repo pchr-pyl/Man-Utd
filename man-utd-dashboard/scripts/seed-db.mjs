@@ -116,14 +116,22 @@ const datasetFiles = (await readdir(dataDir))
   .filter((name) => /^man-utd-.*\.json$/.test(name))
   .filter((name) => !['man-utd-seasons.json', 'man-utd-matches.json'].includes(name));
 
-for (const name of datasetFiles) {
+const matchlogDir = join(root, 'public', 'data');
+const matchlogFiles = (await readdir(matchlogDir)).filter((name) =>
+  /^matchlogs-.*\.json$/.test(name),
+);
+
+let datasetCount = 0;
+for (const name of [...datasetFiles, ...matchlogFiles]) {
   const key = name.replace(/^man-utd-/, '').replace(/\.json$/, '');
-  const payload = await readJson(name);
+  const dir = name.startsWith('matchlogs-') ? matchlogDir : dataDir;
+  const payload = JSON.parse(await readFile(join(dir, name), 'utf8'));
   await sql`
     INSERT INTO datasets (key, payload, updated_at)
     VALUES (${key}, ${JSON.stringify(payload)}::jsonb, now())
     ON CONFLICT (key) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()
   `;
+  datasetCount += 1;
 }
 
-console.log(`seeded ${seasonRows.length} season rows, ${matches.length} matches, and ${datasetFiles.length} datasets`);
+console.log(`seeded ${seasonRows.length} season rows, ${matches.length} matches, and ${datasetCount} datasets`);

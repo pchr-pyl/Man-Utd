@@ -2,7 +2,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { cache } from 'react';
 import { hasDatabase, queryDataset, queryMatches, querySeasonRows } from './db';
-import type { SeasonRow, MatchRow, KeepersData, SquadData, PlayersData, AttackBySeason } from './types';
+import type { SeasonRow, MatchRow, KeepersData, SquadData, PlayersData, AttackBySeason, SeasonMatchlogs } from './types';
 
 const DATA_DIR = join(process.cwd(), 'data');
 const JSON_PATH = join(DATA_DIR, 'man-utd-seasons.json');
@@ -196,4 +196,10 @@ export const getPlayers = cache(async (): Promise<PlayersData> => {
 export const getAttack = cache(async (): Promise<AttackBySeason> => {
   if (hasDatabase()) return await queryDataset<AttackBySeason>('attack') ?? {};
   return readJson<AttackBySeason>(ATTACK_PATH, {});
+});
+
+export const getMatchlogs = cache(async (season: string): Promise<SeasonMatchlogs> => {
+  const key = `matchlogs-${season}`;
+  if (hasDatabase()) return await queryDataset<SeasonMatchlogs>(key) ?? {};
+  return readJson<SeasonMatchlogs>(join(process.cwd(), 'public', 'data', `${key}.json`), {});
 });
