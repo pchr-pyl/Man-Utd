@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Sun, Moon } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
@@ -33,14 +34,28 @@ export function AppHeader({ seasonRange }: { seasonRange?: string }) {
     <header className="sticky top-0 z-50 border-b border-border bg-surface/95 backdrop-blur-sm">
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
         <div className="flex items-center justify-between gap-3 py-4 sm:gap-4">
-          <div className="flex min-w-0 flex-col gap-0.5">
-            <h1 className="truncate font-display text-lg font-bold leading-none tracking-tight text-primary sm:text-2xl">
-              {t('app.title')}
-            </h1>
-            <p className="truncate text-xs text-muted sm:text-sm">
-              {t('app.subtitle')}{seasonRange ? ` · ${seasonRange}` : ''}
-            </p>
-          </div>
+          <Link
+            href="/"
+            aria-label={t('app.title')}
+            className="flex min-w-0 items-center gap-3 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          >
+            <Image
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/man-utd-crest.svg`}
+              alt=""
+              width={48}
+              height={49}
+              unoptimized
+              className="h-10 w-10 shrink-0 object-contain sm:h-12 sm:w-12"
+            />
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <h1 className="truncate font-display text-lg font-bold leading-none tracking-tight text-primary sm:text-2xl">
+                {t('app.title')}
+              </h1>
+              <p className="truncate text-xs text-muted sm:text-sm">
+                {t('app.subtitle')}{seasonRange ? ` · ${seasonRange}` : ''}
+              </p>
+            </div>
+          </Link>
 
           <div className="flex items-center gap-2">
             <div className="flex items-center rounded-full bg-bg-secondary p-1">
