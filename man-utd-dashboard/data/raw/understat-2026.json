@@ -3,7 +3,6 @@
   {
    "id": "31181",
    "isResult": true,
-   "side": "a",
    "h": {
     "id": "91",
     "title": "Hull",
@@ -24,25 +23,15 @@
    },
    "datetime": "2026-08-22 11:30:00",
    "forecast": {
-    "w": 0.3260079633977796,
-    "d": 0.22890792863634732,
-    "l": 0.44508410706684204
+    "w": "0.2918",
+    "d": "0.2884",
+    "l": "0.4198"
    },
-   "result": "l",
-   "numbers": {
-    "dateTime": "2026-08-22T11:30:00.000Z",
-    "year": 2026,
-    "month": 8,
-    "week": 34,
-    "day": 22,
-    "hours": "18",
-    "minutes": "30"
-   }
+   "side": "a"
   },
   {
    "id": "31198",
    "isResult": true,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -63,25 +52,15 @@
    },
    "datetime": "2026-08-30 15:30:00",
    "forecast": {
-    "w": 0.8436379968239958,
-    "d": 0.0797430777514628,
-    "l": 0.0764487038307111
+    "w": "0.9204",
+    "d": "0.0581",
+    "l": "0.0215"
    },
-   "result": "w",
-   "numbers": {
-    "dateTime": "2026-08-30T15:30:00.000Z",
-    "year": 2026,
-    "month": 8,
-    "week": 35,
-    "day": 30,
-    "hours": "22",
-    "minutes": "30"
-   }
+   "side": "h"
   },
   {
    "id": "31208",
    "isResult": true,
-   "side": "a",
    "h": {
     "id": "72",
     "title": "Everton",
@@ -102,25 +81,15 @@
    },
    "datetime": "2026-09-06 13:00:00",
    "forecast": {
-    "w": 0.39210209317458866,
-    "d": 0.31348499164281135,
-    "l": 0.2944129151819098
+    "w": "0.3879",
+    "d": "0.3237",
+    "l": "0.2884"
    },
-   "result": "d",
-   "numbers": {
-    "dateTime": "2026-09-06T13:00:00.000Z",
-    "year": 2026,
-    "month": 9,
-    "week": 36,
-    "day": 6,
-    "hours": "20",
-    "minutes": "00"
-   }
+   "side": "a"
   },
   {
    "id": "31218",
    "isResult": true,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -141,25 +110,15 @@
    },
    "datetime": "2026-09-13 15:30:00",
    "forecast": {
-    "w": 0.299821484812574,
-    "d": 0.29893846610979824,
-    "l": 0.4012400490755999
+    "w": "0.2657",
+    "d": "0.3273",
+    "l": "0.407"
    },
-   "result": "l",
-   "numbers": {
-    "dateTime": "2026-09-13T15:30:00.000Z",
-    "year": 2026,
-    "month": 9,
-    "week": 37,
-    "day": 13,
-    "hours": "22",
-    "minutes": "30"
-   }
+   "side": "h"
   },
   {
    "id": "31229",
    "isResult": true,
-   "side": "a",
    "h": {
     "id": "228",
     "title": "Fulham",
@@ -180,25 +139,15 @@
    },
    "datetime": "2026-09-20 15:30:00",
    "forecast": {
-    "w": 0.31652047984972215,
-    "d": 0.2077371688675809,
-    "l": 0.4757423422387648
+    "w": "0.2919",
+    "d": "0.2282",
+    "l": "0.4799"
    },
-   "result": "d",
-   "numbers": {
-    "dateTime": "2026-09-20T15:30:00.000Z",
-    "year": 2026,
-    "month": 9,
-    "week": 38,
-    "day": 20,
-    "hours": "22",
-    "minutes": "30"
-   }
+   "side": "a"
   },
   {
    "id": "31235",
-   "isResult": false,
-   "side": "h",
+   "isResult": true,
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -210,28 +159,24 @@
     "short_title": "TOT"
    },
    "goals": {
-    "h": null,
-    "a": null
+    "h": "1",
+    "a": "1"
    },
    "xG": {
-    "h": null,
-    "a": null
+    "h": "0.867817",
+    "a": "2.03436"
    },
    "datetime": "2026-10-10 16:30:00",
-   "numbers": {
-    "dateTime": "2026-10-10T16:30:00.000Z",
-    "year": 2026,
-    "month": 10,
-    "week": 41,
-    "day": 10,
-    "hours": "23",
-    "minutes": "30"
-   }
+   "forecast": {
+    "w": "0.1166",
+    "d": "0.2016",
+    "l": "0.6818"
+   },
+   "side": "h"
   },
   {
    "id": "31247",
    "isResult": false,
-   "side": "a",
    "h": {
     "id": "245",
     "title": "Leeds",
@@ -251,20 +196,11 @@
     "a": null
    },
    "datetime": "2026-10-18 13:00:00",
-   "numbers": {
-    "dateTime": "2026-10-18T13:00:00.000Z",
-    "year": 2026,
-    "month": 10,
-    "week": 42,
-    "day": 18,
-    "hours": "20",
-    "minutes": "00"
-   }
+   "side": "a"
   },
   {
    "id": "31256",
    "isResult": false,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -284,20 +220,11 @@
     "a": null
    },
    "datetime": "2026-10-25 14:00:00",
-   "numbers": {
-    "dateTime": "2026-10-25T14:00:00.000Z",
-    "year": 2026,
-    "month": 10,
-    "week": 43,
-    "day": 25,
-    "hours": "21",
-    "minutes": "00"
-   }
+   "side": "h"
   },
   {
    "id": "31260",
    "isResult": false,
-   "side": "a",
    "h": {
     "id": "80",
     "title": "Chelsea",
@@ -317,20 +244,11 @@
     "a": null
    },
    "datetime": "2026-10-31 12:30:00",
-   "numbers": {
-    "dateTime": "2026-10-31T12:30:00.000Z",
-    "year": 2026,
-    "month": 10,
-    "week": 44,
-    "day": 31,
-    "hours": "19",
-    "minutes": "30"
-   }
+   "side": "a"
   },
   {
    "id": "31277",
    "isResult": false,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -350,20 +268,11 @@
     "a": null
    },
    "datetime": "2026-11-07 15:00:00",
-   "numbers": {
-    "dateTime": "2026-11-07T15:00:00.000Z",
-    "year": 2026,
-    "month": 11,
-    "week": 45,
-    "day": 7,
-    "hours": "22",
-    "minutes": "00"
-   }
+   "side": "h"
   },
   {
    "id": "31286",
    "isResult": false,
-   "side": "a",
    "h": {
     "id": "87",
     "title": "Liverpool",
@@ -383,20 +292,11 @@
     "a": null
    },
    "datetime": "2026-11-21 15:00:00",
-   "numbers": {
-    "dateTime": "2026-11-21T15:00:00.000Z",
-    "year": 2026,
-    "month": 11,
-    "week": 47,
-    "day": 21,
-    "hours": "22",
-    "minutes": "00"
-   }
+   "side": "a"
   },
   {
    "id": "31297",
    "isResult": false,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -416,20 +316,11 @@
     "a": null
    },
    "datetime": "2026-11-28 15:00:00",
-   "numbers": {
-    "dateTime": "2026-11-28T15:00:00.000Z",
-    "year": 2026,
-    "month": 11,
-    "week": 48,
-    "day": 28,
-    "hours": "22",
-    "minutes": "00"
-   }
+   "side": "h"
   },
   {
    "id": "31308",
    "isResult": false,
-   "side": "a",
    "h": {
     "id": "86",
     "title": "Newcastle United",
@@ -449,20 +340,11 @@
     "a": null
    },
    "datetime": "2026-12-02 20:00:00",
-   "numbers": {
-    "dateTime": "2026-12-02T20:00:00.000Z",
-    "year": 2026,
-    "month": 12,
-    "week": 49,
-    "day": 3,
-    "hours": "03",
-    "minutes": "00"
-   }
+   "side": "a"
   },
   {
    "id": "31317",
    "isResult": false,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -482,20 +364,11 @@
     "a": null
    },
    "datetime": "2026-12-05 15:00:00",
-   "numbers": {
-    "dateTime": "2026-12-05T15:00:00.000Z",
-    "year": 2026,
-    "month": 12,
-    "week": 49,
-    "day": 5,
-    "hours": "22",
-    "minutes": "00"
-   }
+   "side": "h"
   },
   {
    "id": "31323",
    "isResult": false,
-   "side": "a",
    "h": {
     "id": "78",
     "title": "Crystal Palace",
@@ -515,20 +388,11 @@
     "a": null
    },
    "datetime": "2026-12-12 15:00:00",
-   "numbers": {
-    "dateTime": "2026-12-12T15:00:00.000Z",
-    "year": 2026,
-    "month": 12,
-    "week": 50,
-    "day": 12,
-    "hours": "22",
-    "minutes": "00"
-   }
+   "side": "a"
   },
   {
    "id": "31331",
    "isResult": false,
-   "side": "a",
    "h": {
     "id": "83",
     "title": "Arsenal",
@@ -548,20 +412,11 @@
     "a": null
    },
    "datetime": "2026-12-19 15:00:00",
-   "numbers": {
-    "dateTime": "2026-12-19T15:00:00.000Z",
-    "year": 2026,
-    "month": 12,
-    "week": 51,
-    "day": 19,
-    "hours": "22",
-    "minutes": "00"
-   }
+   "side": "a"
   },
   {
    "id": "31346",
    "isResult": false,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -581,20 +436,11 @@
     "a": null
    },
    "datetime": "2026-12-26 15:00:00",
-   "numbers": {
-    "dateTime": "2026-12-26T15:00:00.000Z",
-    "year": 2026,
-    "month": 12,
-    "week": 52,
-    "day": 26,
-    "hours": "22",
-    "minutes": "00"
-   }
+   "side": "h"
   },
   {
    "id": "31356",
    "isResult": false,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -614,20 +460,11 @@
     "a": null
    },
    "datetime": "2026-12-30 20:00:00",
-   "numbers": {
-    "dateTime": "2026-12-30T20:00:00.000Z",
-    "year": 2026,
-    "month": 12,
-    "week": 53,
-    "day": 31,
-    "hours": "03",
-    "minutes": "00"
-   }
+   "side": "h"
   },
   {
    "id": "31363",
    "isResult": false,
-   "side": "a",
    "h": {
     "id": "220",
     "title": "Brighton",
@@ -647,20 +484,11 @@
     "a": null
    },
    "datetime": "2027-01-02 15:00:00",
-   "numbers": {
-    "dateTime": "2027-01-02T15:00:00.000Z",
-    "year": 2026,
-    "month": 1,
-    "week": 53,
-    "day": 2,
-    "hours": "22",
-    "minutes": "00"
-   }
+   "side": "a"
   },
   {
    "id": "31377",
    "isResult": false,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -680,20 +508,11 @@
     "a": null
    },
    "datetime": "2027-01-06 20:00:00",
-   "numbers": {
-    "dateTime": "2027-01-06T20:00:00.000Z",
-    "year": 2027,
-    "month": 1,
-    "week": 1,
-    "day": 7,
-    "hours": "03",
-    "minutes": "00"
-   }
+   "side": "h"
   },
   {
    "id": "31381",
    "isResult": false,
-   "side": "a",
    "h": {
     "id": "71",
     "title": "Aston Villa",
@@ -713,20 +532,11 @@
     "a": null
    },
    "datetime": "2027-01-16 15:00:00",
-   "numbers": {
-    "dateTime": "2027-01-16T15:00:00.000Z",
-    "year": 2027,
-    "month": 1,
-    "week": 2,
-    "day": 16,
-    "hours": "22",
-    "minutes": "00"
-   }
+   "side": "a"
   },
   {
    "id": "31397",
    "isResult": false,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -746,20 +556,11 @@
     "a": null
    },
    "datetime": "2027-01-23 15:00:00",
-   "numbers": {
-    "dateTime": "2027-01-23T15:00:00.000Z",
-    "year": 2027,
-    "month": 1,
-    "week": 3,
-    "day": 23,
-    "hours": "22",
-    "minutes": "00"
-   }
+   "side": "h"
   },
   {
    "id": "31407",
    "isResult": false,
-   "side": "a",
    "h": {
     "id": "244",
     "title": "Brentford",
@@ -779,20 +580,11 @@
     "a": null
    },
    "datetime": "2027-01-30 15:00:00",
-   "numbers": {
-    "dateTime": "2027-01-30T15:00:00.000Z",
-    "year": 2027,
-    "month": 1,
-    "week": 4,
-    "day": 30,
-    "hours": "22",
-    "minutes": "00"
-   }
+   "side": "a"
   },
   {
    "id": "31412",
    "isResult": false,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -812,20 +604,11 @@
     "a": null
    },
    "datetime": "2027-02-06 15:00:00",
-   "numbers": {
-    "dateTime": "2027-02-06T15:00:00.000Z",
-    "year": 2027,
-    "month": 2,
-    "week": 5,
-    "day": 6,
-    "hours": "22",
-    "minutes": "00"
-   }
+   "side": "h"
   },
   {
    "id": "31427",
    "isResult": false,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -845,20 +628,11 @@
     "a": null
    },
    "datetime": "2027-02-10 20:00:00",
-   "numbers": {
-    "dateTime": "2027-02-10T20:00:00.000Z",
-    "year": 2027,
-    "month": 2,
-    "week": 6,
-    "day": 11,
-    "hours": "03",
-    "minutes": "00"
-   }
+   "side": "h"
   },
   {
    "id": "31438",
    "isResult": false,
-   "side": "a",
    "h": {
     "id": "249",
     "title": "Nottingham Forest",
@@ -878,20 +652,11 @@
     "a": null
    },
    "datetime": "2027-02-20 15:00:00",
-   "numbers": {
-    "dateTime": "2027-02-20T15:00:00.000Z",
-    "year": 2027,
-    "month": 2,
-    "week": 7,
-    "day": 20,
-    "hours": "22",
-    "minutes": "00"
-   }
+   "side": "a"
   },
   {
    "id": "31447",
    "isResult": false,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -911,20 +676,11 @@
     "a": null
    },
    "datetime": "2027-02-27 15:00:00",
-   "numbers": {
-    "dateTime": "2027-02-27T15:00:00.000Z",
-    "year": 2027,
-    "month": 2,
-    "week": 8,
-    "day": 27,
-    "hours": "22",
-    "minutes": "00"
-   }
+   "side": "h"
   },
   {
    "id": "31459",
    "isResult": false,
-   "side": "a",
    "h": {
     "id": "77",
     "title": "Sunderland",
@@ -944,20 +700,11 @@
     "a": null
    },
    "datetime": "2027-03-03 20:00:00",
-   "numbers": {
-    "dateTime": "2027-03-03T20:00:00.000Z",
-    "year": 2027,
-    "month": 3,
-    "week": 9,
-    "day": 4,
-    "hours": "03",
-    "minutes": "00"
-   }
+   "side": "a"
   },
   {
    "id": "31467",
    "isResult": false,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -977,20 +724,11 @@
     "a": null
    },
    "datetime": "2027-03-13 15:00:00",
-   "numbers": {
-    "dateTime": "2027-03-13T15:00:00.000Z",
-    "year": 2027,
-    "month": 3,
-    "week": 10,
-    "day": 13,
-    "hours": "22",
-    "minutes": "00"
-   }
+   "side": "h"
   },
   {
    "id": "31477",
    "isResult": false,
-   "side": "a",
    "h": {
     "id": "88",
     "title": "Manchester City",
@@ -1010,20 +748,11 @@
     "a": null
    },
    "datetime": "2027-03-20 15:00:00",
-   "numbers": {
-    "dateTime": "2027-03-20T15:00:00.000Z",
-    "year": 2027,
-    "month": 3,
-    "week": 11,
-    "day": 20,
-    "hours": "22",
-    "minutes": "00"
-   }
+   "side": "a"
   },
   {
    "id": "31487",
    "isResult": false,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -1043,20 +772,11 @@
     "a": null
    },
    "datetime": "2027-04-10 14:00:00",
-   "numbers": {
-    "dateTime": "2027-04-10T14:00:00.000Z",
-    "year": 2027,
-    "month": 4,
-    "week": 14,
-    "day": 10,
-    "hours": "21",
-    "minutes": "00"
-   }
+   "side": "h"
   },
   {
    "id": "31496",
    "isResult": false,
-   "side": "a",
    "h": {
     "id": "285",
     "title": "Ipswich",
@@ -1076,20 +796,11 @@
     "a": null
    },
    "datetime": "2027-04-17 14:00:00",
-   "numbers": {
-    "dateTime": "2027-04-17T14:00:00.000Z",
-    "year": 2027,
-    "month": 4,
-    "week": 15,
-    "day": 17,
-    "hours": "21",
-    "minutes": "00"
-   }
+   "side": "a"
   },
   {
    "id": "31506",
    "isResult": false,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -1109,20 +820,11 @@
     "a": null
    },
    "datetime": "2027-04-24 14:00:00",
-   "numbers": {
-    "dateTime": "2027-04-24T14:00:00.000Z",
-    "year": 2027,
-    "month": 4,
-    "week": 16,
-    "day": 24,
-    "hours": "21",
-    "minutes": "00"
-   }
+   "side": "h"
   },
   {
    "id": "31512",
    "isResult": false,
-   "side": "a",
    "h": {
     "id": "294",
     "title": "Coventry",
@@ -1142,20 +844,11 @@
     "a": null
    },
    "datetime": "2027-05-01 14:00:00",
-   "numbers": {
-    "dateTime": "2027-05-01T14:00:00.000Z",
-    "year": 2027,
-    "month": 5,
-    "week": 17,
-    "day": 1,
-    "hours": "21",
-    "minutes": "00"
-   }
+   "side": "a"
   },
   {
    "id": "31520",
    "isResult": false,
-   "side": "a",
    "h": {
     "id": "73",
     "title": "Bournemouth",
@@ -1175,20 +868,11 @@
     "a": null
    },
    "datetime": "2027-05-08 14:00:00",
-   "numbers": {
-    "dateTime": "2027-05-08T14:00:00.000Z",
-    "year": 2027,
-    "month": 5,
-    "week": 18,
-    "day": 8,
-    "hours": "21",
-    "minutes": "00"
-   }
+   "side": "a"
   },
   {
    "id": "31538",
    "isResult": false,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -1208,20 +892,11 @@
     "a": null
    },
    "datetime": "2027-05-15 14:00:00",
-   "numbers": {
-    "dateTime": "2027-05-15T14:00:00.000Z",
-    "year": 2027,
-    "month": 5,
-    "week": 19,
-    "day": 15,
-    "hours": "21",
-    "minutes": "00"
-   }
+   "side": "h"
   },
   {
    "id": "31549",
    "isResult": false,
-   "side": "a",
    "h": {
     "id": "82",
     "title": "Tottenham",
@@ -1241,20 +916,11 @@
     "a": null
    },
    "datetime": "2027-05-23 14:00:00",
-   "numbers": {
-    "dateTime": "2027-05-23T14:00:00.000Z",
-    "year": 2027,
-    "month": 5,
-    "week": 20,
-    "day": 23,
-    "hours": "21",
-    "minutes": "00"
-   }
+   "side": "a"
   },
   {
    "id": "31558",
    "isResult": false,
-   "side": "h",
    "h": {
     "id": "89",
     "title": "Manchester United",
@@ -1274,15 +940,7 @@
     "a": null
    },
    "datetime": "2027-05-30 15:00:00",
-   "numbers": {
-    "dateTime": "2027-05-30T15:00:00.000Z",
-    "year": 2027,
-    "month": 5,
-    "week": 21,
-    "day": 30,
-    "hours": "22",
-    "minutes": "00"
-   }
+   "side": "h"
   }
  ],
  "players": [
