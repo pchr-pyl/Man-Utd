@@ -14,6 +14,19 @@
   },
   "managers": {
     "pick": "Select managers to compare",
+    "recordTitle": "Manager record comparison",
+    "recordMetric": "Statistic",
+    "record": {
+      "games": "Games",
+      "wins": "Wins",
+      "draws": "Draws",
+      "defeats": "Defeats",
+      "winRatio": "Win ratio",
+      "goalDifference": "Goal difference",
+      "points": "Points"
+    },
+    "recordPointsNote": "Points = wins × 3 + draws, including in the all-competitions view.",
+    "recordCoverageNote": "Based on matches in the dataset. Domestic cup coverage before 2016–17 may be incomplete.",
     "chartTitle": "Points per match & win rate",
     "tableTitle": "Manager comparison",
     "colManager": "Manager",

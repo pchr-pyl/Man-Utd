@@ -43,6 +43,15 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
     );
 
   const chosen = MANAGERS.filter((m) => selected.includes(m.id));
+  const recordRows: { key: string; value: (s: ManagerStats) => string | number }[] = [
+    { key: 'games', value: (s) => s.mp },
+    { key: 'wins', value: (s) => s.w },
+    { key: 'draws', value: (s) => s.d },
+    { key: 'defeats', value: (s) => s.l },
+    { key: 'winRatio', value: (s) => pct(winPct(s), 2) },
+    { key: 'goalDifference', value: (s) => s.gf - s.ga },
+    { key: 'points', value: ptsOf },
+  ];
   const label = (id: string) => {
     const m = MANAGERS.find((x) => x.id === id)!;
     const base = lang === 'th' ? m.nameTh : m.name;
@@ -99,7 +108,7 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
     );
   }
 
-  const row = (s: ManagerStats, indent = false) => (
+  const row = (s: ManagerStats) => (
     <>
       <td className="px-3 py-2.5 text-right text-sm text-secondary">{s.mp}</td>
       <td className="px-3 py-2.5 text-right text-sm text-secondary">
@@ -176,6 +185,63 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
               )}
             </button>
           ))}
+        </div>
+      </section>
+
+      <section
+        aria-labelledby="manager-record-title"
+        className="min-w-0 overflow-hidden rounded-2xl border border-border bg-surface shadow-sm dark:shadow-none"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-3">
+          <h3 id="manager-record-title" className="font-display text-lg font-semibold text-primary">
+            {t('managers.recordTitle')}
+          </h3>
+          <span className="rounded-full bg-brand-soft px-3 py-1 text-xs font-medium text-brand">
+            {leagueOnly ? t('managers.scopeLeague') : t('managers.scopeAll')}
+          </span>
+        </div>
+        {chosen.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse tabular-nums">
+              <caption className="sr-only">{t('managers.recordTitle')} · {leagueOnly ? t('managers.scopeLeague') : t('managers.scopeAll')}</caption>
+              <thead className="bg-surface-elevated">
+                <tr>
+                  <th scope="col" className="sticky left-0 z-10 min-w-40 border-b border-border bg-surface-elevated px-4 py-3 text-left text-xs font-semibold text-muted">
+                    {t('managers.recordMetric')}
+                  </th>
+                  {chosen.map((m) => (
+                    <th key={m.id} scope="col" className="min-w-48 border-b border-border px-4 py-3 text-right text-sm font-semibold text-primary">
+                      {label(m.id)}
+                      {m.interim && <span className="ml-1 text-xs font-normal text-muted">({t('managers.interim')})</span>}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {recordRows.map(({ key, value }) => (
+                  <tr key={key} className="border-b border-border-light last:border-b-0 hover:bg-bg-secondary">
+                    <th scope="row" className="sticky left-0 z-10 bg-surface px-4 py-3 text-left text-sm font-medium text-secondary">
+                      {t(`managers.record.${key}`)}
+                    </th>
+                    {chosen.map((m) => {
+                      const s = stats.get(m.id)!.total;
+                      return (
+                        <td key={m.id} className="px-4 py-3 text-right text-base font-semibold text-primary">
+                          {s.mp > 0 ? value(s) : '—'}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="px-4 py-8 text-center text-sm text-muted">{t('managers.noData')}</p>
+        )}
+        <div className="space-y-1 border-t border-border px-4 py-3 text-xs text-muted">
+          <p>{t('managers.recordPointsNote')}</p>
+          {!leagueOnly && <p>{t('managers.recordCoverageNote')}</p>}
         </div>
       </section>
 
@@ -305,7 +371,7 @@ export function ManagersClient({ matches }: { matches: MatchRow[] }) {
                           <td className="px-3 py-2 text-sm text-muted">
                             {ss.first} → {ss.last}
                           </td>
-                          {row(ss, true)}
+                          {row(ss)}
                         </tr>
                       ))
                     : []),
